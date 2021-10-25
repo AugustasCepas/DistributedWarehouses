@@ -5,7 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <Compile Remove="Models\Extensions\**" />
+    <EmbeddedResource Remove="Models\Extensions\**" />
+    <None Remove="Models\Extensions\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DistributedWarehouses.Domain\DistributedWarehouses.Domain.csproj" />
+    <ProjectReference Include="..\DistributedWarehouses.Dto\DistributedWarehouses.Dto.csproj" />
   </ItemGroup>
 
   <ItemGroup>

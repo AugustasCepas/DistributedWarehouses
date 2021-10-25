@@ -19,6 +19,8 @@ namespace DistributedWarehouses.Api.Injections
         private static void AddRepositories(this IServiceCollection services)
         {
             services.AddScoped<IItemsRepository, ItemsRepository>();
+            services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+            services.AddScoped<IWarehouseItemRepository, WarehouseItemRepository>();
         }
     }
 }

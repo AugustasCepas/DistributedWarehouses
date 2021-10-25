@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    class Warehouse
+    public class Warehouse
     {
         public Guid Id { get; set; }
 
@@ -15,6 +15,6 @@ namespace DistributedWarehouses.Domain.Entities
         /// <summary>
         /// Warehouse capacity in items
         /// </summary>
-        public int Capacity { get; set; }
+        public int? Capacity { get; set; }
     }
 }
