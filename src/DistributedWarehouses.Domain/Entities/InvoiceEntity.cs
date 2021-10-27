@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    class Invoice
+    class InvoiceEntity
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }

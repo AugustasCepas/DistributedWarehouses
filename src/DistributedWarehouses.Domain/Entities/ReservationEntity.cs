@@ -6,14 +6,10 @@ using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    class Reservation
+    public class ReservationEntity
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
-
         public DateTime ExpirationTime { get; set; }
-
-
-
     }
 }

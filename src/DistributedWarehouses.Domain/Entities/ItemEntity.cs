@@ -2,7 +2,7 @@
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    public class Item
+    public class ItemEntity
     {
         public string SKU { get; set; }
         public string Title { get; set; }

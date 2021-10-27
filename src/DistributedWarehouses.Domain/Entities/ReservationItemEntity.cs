@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    public class WarehouseItem
+    public class ReservationItemEntity
     {
         public int Quantity { get; set; }
 
-        public Item Item { get; set; }
+        public ItemEntity Item { get; set; }
 
-        public Warehouse Warehouse { get; set; }
+        public WarehouseEntity WarehouseEntity { get; set; }
+
+        public ReservationEntity ReservationEntity { get; set; }
     }
 }
