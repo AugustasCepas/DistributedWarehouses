@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DistributedWarehouses.Infrastructure.Models
 {
-    public partial class DistributedWarehousesContext : DbContext
+    public class DistributedWarehousesContext : DbContext
     {
         public DistributedWarehousesContext()
         {

@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Infrastructure.Models;
-using DistributedWarehouses.Infrastructure.Models.Extensions;
-using Item = DistributedWarehouses.Domain.Entities.Item;
-using WarehouseItemEntity = DistributedWarehouses.Domain.Entities.WarehouseItem;
+using ItemEntity = DistributedWarehouses.Domain.Entities.ItemEntity;
 using WarehouseItemModel = DistributedWarehouses.Infrastructure.Models.WarehouseItem;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
@@ -25,7 +23,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             throw new System.NotImplementedException();
         }
 
-        public Task<int> AddWarehouseItem(Item item)
+        public Task<int> AddWarehouseItem(ItemEntity item)
         {
             throw new System.NotImplementedException();
         }
@@ -37,7 +35,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         // public IEnumerable<WarehouseItemEntity> GetWarehouseItem(string sku)
         // {
-        //     return _distributedWarehouseItemsContext.WarehouseItems
+        //     return _distributedWarehouseContext.WarehouseItems
         //         .Where(i => i.Sku == sku)
         //         .Select(i => new WarehouseItemEntity
         //         {
@@ -46,12 +44,12 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         //         }).AsEnumerable();
         // }
 
-        public Task<int> AddItem(WarehouseItemEntity item)
+        public Task<int> AddItem(WarehouseItemEntity itemEntity)
         {
             _distributedWarehouseContext.WarehouseItems.Add(new WarehouseItemModel
             {
-                Quantity = item.Quantity,
-                Item = item.Item.SKU
+                Quantity = itemEntity.Quantity,
+                Item = itemEntity.Item.SKU
             });
             return _distributedWarehouseContext.SaveChangesAsync();
         }

@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using DistributedWarehouses.ApplicationServices;
 using DistributedWarehouses.Domain;
+using DistributedWarehouses.Domain.Repositories;
+using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,8 +17,14 @@ namespace DistributedWarehouses.Api.Injections
 
         private static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IItemsRepository, ItemsRepository>();
+            services.AddScoped<IItemRepository, ItemRepository>();
+            services.AddScoped<IItemService, ItemService>();
+            services.AddScoped<IItemRetrievalService, ItemRetrievalService>();
+
             services.AddScoped<IWarehouseRepository, WarehouseRepository>();
+            services.AddScoped<IWarehouseService, WarehouseService>();
+            services.AddScoped<IWarehouseRetrievalService, WarehouseRetrievalService>();
+
             services.AddScoped<IWarehouseItemRepository, WarehouseItemRepository>();
         }
     }

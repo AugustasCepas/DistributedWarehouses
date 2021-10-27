@@ -21,22 +21,23 @@ namespace DistributedWarehouses.Api.Controllers
         {
             _warehouseItemRepository = warehouseItemRepository;
         }
+        
 
-        // GET: api/<WarehouseItemController>
-        [HttpGet]
-        public IEnumerable<WarehouseItem> Get()
-        {
-            return _warehouseItemRepository.GetWarehouseItems();
-        }
+        // // GET: api/<WarehouseItemController>
+        // [HttpGet]
+        // public IEnumerable<WarehouseItemEntity> Get()
+        // {
+        //     return _warehouseItemRepository.GetWarehouseItems();
+        // }
 
-        // POST api/<WarehouseItemController>
-        [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] Item item)
-        {
-            var result = await _warehouseItemRepository.AddWarehouseItem(item);
-            return Ok(result);
-        }
+        // // POST api/<WarehouseItemController>
+        // [HttpPost]
+        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        // public async Task<IActionResult> Post([FromBody] Item item)
+        // {
+        //     var result = await _warehouseItemRepository.AddWarehouseItem(item);
+        //     return Ok(result);
+        // }
 
 
         // // GET api/<WarehouseItemController>/5

@@ -7,9 +7,9 @@ namespace DistributedWarehouses.Domain
 {
     public interface IWarehouseRepository
     {
-        public IEnumerable<Warehouse> GetWarehouses();
-        public IEnumerable<Warehouse> GetWarehouse(Guid Id);
-        public Task<int> AddWarehouse(Warehouse warehouse);
+        public IEnumerable<WarehouseEntity> GetWarehouses();
+        public WarehouseEntity GetWarehouse(Guid Id);
+        public Task<int> AddWarehouse(WarehouseEntity warehouseEntity);
         public Task<int> RemoveWarehouse(Guid Id);
 
     }

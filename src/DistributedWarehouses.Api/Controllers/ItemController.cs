@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using DistributedWarehouses.Domain;
+using DistributedWarehouses.ApplicationServices;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
@@ -11,65 +10,62 @@ using Microsoft.AspNetCore.Http;
 
 namespace DistributedWarehouses.Api.Controllers
 {
-    [Route("api/v1/[controller]")]
+    [Route("v1/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private readonly IItemsRepository _itemsRepository;
+        private readonly IItemService _itemService;
 
-        public ItemController(IItemsRepository itemsRepository)
+        public ItemController(
+            IItemService itemService)
         {
-            _itemsRepository = itemsRepository;
+            _itemService = itemService;
         }
 
-        // GET: api/<ItemController>
-        [HttpGet]
-        public IEnumerable<Item> Get()
+        // Task End Points
+
+        // Return list of all SKUs
+        // GET: <ItemController>/items
+        [HttpGet("items")]
+        [ProducesResponseType(typeof(IEnumerable<ItemEntity>), StatusCodes.Status200OK)]
+        public IActionResult Get()
         {
-            return _itemsRepository.GetItems();
+            var response = _itemService.GetItems();
+
+            return Ok(response);
         }
 
-        // GET: api/<ItemController>/$SKU
-        [HttpGet("{SKU}")]
+        // // Return info about one SKU
+        // // How many items left in each warehouseEntity
+        // // How many items are reserved
+        // // TODO: How many items are planned to be delivered soon
+        // // GET: <ItemController>/items/$SKU
+        [HttpGet("items/{SKU}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
         public IActionResult Get(string SKU)
         {
-            //TODO: perkelti i service
-            var item = _itemsRepository.GetItem(SKU);
-            var result = new ItemDto
-            {
-                SKU = item.SKU,
-                Title = item.Title,
-                InWarehouses = _itemsRepository.GetItemsInWarehouses(SKU)
-            };
-            return Ok(result);
+            var item = _itemService.GetItem(SKU);
+
+            return Ok(item);
         }
 
-        // POST api/<ItemController>
-        [HttpPost]
+        // Other End Points
+        // POST <ItemController>/items
+        [HttpPost("items")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] Item item)
+        public async Task<IActionResult> Post([FromBody] ItemEntity item)
         {
-            var result = await _itemsRepository.AddItem(item);
+            var result = await _itemService.AddItem(item);
             return Ok(result);
         }
 
-        // DELETE api/<ItemController>/$SKU
-        [HttpDelete("{SKU}")]
+        // DELETE <ItemController>/items/$SKU
+        [HttpDelete("items/{SKU}")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete(string SKU)
         {
-            var result = await _itemsRepository.RemoveItem(SKU);
+            var result = await _itemService.RemoveItem(SKU);
             return Ok(result);
         }
-        
-        ////
-        //// // PUT api/<ItemController>/5
-        //// [HttpPut("{id}")]
-        //// public void Put(int id, [FromBody] string value)
-        //// {
-        //// }
-        ////
-
     }
 }

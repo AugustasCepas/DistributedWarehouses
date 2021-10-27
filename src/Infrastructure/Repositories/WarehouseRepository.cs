@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain;
 using DistributedWarehouses.Infrastructure.Models;
-using Warehouse = DistributedWarehouses.Domain.Entities.Warehouse;
+using WarehouseEntity = DistributedWarehouses.Domain.Entities.WarehouseEntity;
 using WarehouseModel = DistributedWarehouses.Infrastructure.Models.Warehouse;
 
 
@@ -19,34 +19,37 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             _distributedWarehousesContext = distributedWarehousesContext;
         }
 
-        public IEnumerable<Warehouse> GetWarehouses()
+        public IEnumerable<WarehouseEntity> GetWarehouses()
         {
-            return _distributedWarehousesContext.Warehouses.Select(i => new Warehouse
+            return _distributedWarehousesContext.Warehouses.Select(i => new WarehouseEntity
             {
                 Id = i.Id,
-                Address = i.Address
+                Address = i.Address,
+                Capacity = i.Capacity
             }).AsEnumerable();
         }
 
-        public IEnumerable<Warehouse> GetWarehouse(Guid id)
+        public WarehouseEntity GetWarehouse(Guid id)
         {
             return _distributedWarehousesContext.Warehouses
                 .Where(w => w.Id == id)
-                .Select(i => new Warehouse
+                .Select(i => new WarehouseEntity
                 {
                     Id = i.Id,
-                    Address = i.Address
-                }).AsEnumerable();
+                    Address = i.Address,
+                    Capacity = i.Capacity
+                }).FirstOrDefault();
         }
 
-        public Task<int> AddWarehouse(Warehouse warehouse)
+        public async Task<int> AddWarehouse(WarehouseEntity warehouseEntity)
         {
             _distributedWarehousesContext.Warehouses.Add(new WarehouseModel
             {
-                Id = warehouse.Id,
-                Address = warehouse.Address
+                Id = warehouseEntity.Id,
+                Address = warehouseEntity.Address,
+                Capacity = warehouseEntity.Capacity
             });
-            return _distributedWarehousesContext.SaveChangesAsync();
+            return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
         public async Task<int> RemoveWarehouse(Guid id)
