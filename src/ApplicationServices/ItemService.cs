@@ -24,9 +24,9 @@ namespace DistributedWarehouses.ApplicationServices
             return result;
         }
 
-        public ItemDto GetItem(string SKU)
+        public ItemDto GetItemInWarehousesInfo(string SKU)
         {
-            var result = _itemRetrievalService.GetItem(SKU);
+            var result = _itemRetrievalService.GetItemInWarehousesInfo(SKU);
 
             return result;
         }

@@ -21,14 +21,14 @@ namespace DistributedWarehouses.Domain.Services
             return _itemRepository.GetItems();
         }
 
-        public ItemDto GetItem(string SKU)
+        public ItemDto GetItemInWarehousesInfo(string SKU)
         {
             var item = _itemRepository.GetItem(SKU);
             var result = new ItemDto
             {
                 SKU = item.SKU,
                 Title = item.Title,
-                InWarehouses = _itemRepository.GetItemsInWarehouses(SKU)
+                InWarehouses = _itemRepository.GetItemInWarehousesInfo(SKU)
             };
 
             return result;

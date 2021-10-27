@@ -9,7 +9,7 @@ namespace DistributedWarehouses.Domain.Repositories
     {
         // Task Functions
         IEnumerable<ItemEntity> GetItems();
-        IEnumerable<ItemInWarehousesInfoDto> GetItemsInWarehouses(string SKU);
+        IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string SKU);
         ItemEntity GetItem(string SKU);
 
         // Other Functions

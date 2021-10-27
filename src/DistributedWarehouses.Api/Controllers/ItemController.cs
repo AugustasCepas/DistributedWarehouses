@@ -44,7 +44,7 @@ namespace DistributedWarehouses.Api.Controllers
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
         public IActionResult Get(string SKU)
         {
-            var item = _itemService.GetItem(SKU);
+            var item = _itemService.GetItemInWarehousesInfo(SKU);
 
             return Ok(item);
         }

@@ -28,26 +28,21 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             }).AsEnumerable();
         }
 
-        public IEnumerable<ItemInWarehousesInfoDto> GetItemsInWarehouses(string sku)
+        public IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string sku)
         {
-            var items = _distributedWarehousesContext.Items;
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
 
             var query =
-                from item in items
-                join warehouseItem in warehouseItems on item.Sku equals warehouseItem.Item into warehouseItemGroup
-                from warehouseItem in warehouseItemGroup.DefaultIfEmpty()
-                join reservationItem in reservationItems on new { sku = item.Sku, warehouseItem.Warehouse } equals new
-                    { sku = reservationItem.Item, reservationItem.Warehouse } into reservationItemGroup
+                from warehouseItem in warehouseItems
+                join reservationItem in reservationItems on new {warehouseItem.Item, warehouseItem.Warehouse} equals new
+                    {reservationItem.Item, reservationItem.Warehouse} into reservationItemGroup
                 from reservationItem in reservationItemGroup.DefaultIfEmpty()
-                where item.Sku == sku
+                where warehouseItem.Item == sku
                 group reservationItem by new
                 {
-                    item.Sku,
                     warehouseItem.Warehouse,
-                    WarehouseQuantity = warehouseItem.Quantity,
-                    reservationItem.Item
+                    WarehouseQuantity = warehouseItem.Quantity
                 }
                 into g
                 select new ItemInWarehousesInfoDto
