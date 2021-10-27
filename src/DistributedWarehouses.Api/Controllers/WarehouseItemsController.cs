@@ -13,24 +13,24 @@ namespace DistributedWarehouses.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WarehouseItemController : ControllerBase
+    public class WarehouseItemsController : ControllerBase
     {
         private readonly IWarehouseItemRepository _warehouseItemRepository;
 
-        public WarehouseItemController(IWarehouseItemRepository warehouseItemRepository)
+        public WarehouseItemsController(IWarehouseItemRepository warehouseItemRepository)
         {
             _warehouseItemRepository = warehouseItemRepository;
         }
         
 
-        // // GET: api/<WarehouseItemController>
+        // // GET: api/<WarehouseItemsController>
         // [HttpGet]
         // public IEnumerable<WarehouseItemEntity> Get()
         // {
         //     return _warehouseItemRepository.GetWarehouseItems();
         // }
 
-        // // POST api/<WarehouseItemController>
+        // // POST api/<WarehouseItemsController>
         // [HttpPost]
         // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         // public async Task<IActionResult> Post([FromBody] Item item)
@@ -40,7 +40,7 @@ namespace DistributedWarehouses.Api.Controllers
         // }
 
 
-        // // GET api/<WarehouseItemController>/5
+        // // GET api/<WarehouseItemsController>/5
         // [HttpGet("{id}")]
         // public string Get(int id)
         // {
@@ -49,13 +49,13 @@ namespace DistributedWarehouses.Api.Controllers
         //
 
         //
-        // // PUT api/<WarehouseItemController>/5
+        // // PUT api/<WarehouseItemsController>/5
         // [HttpPut("{id}")]
         // public void Put(int id, [FromBody] string value)
         // {
         // }
         //
-        // // DELETE api/<WarehouseItemController>/5
+        // // DELETE api/<WarehouseItemsController>/5
         // [HttpDelete("{id}")]
         // public void Delete(int id)
         // {

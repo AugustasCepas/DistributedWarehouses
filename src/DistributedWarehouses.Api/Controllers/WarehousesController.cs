@@ -14,18 +14,18 @@ namespace DistributedWarehouses.Api.Controllers
 {
     [Route("v1/[controller]")]
     [ApiController]
-    public class WarehouseController : ControllerBase
+    public class WarehousesController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;
 
-        public WarehouseController(IWarehouseService warehouseService)
+        public WarehousesController(IWarehouseService warehouseService)
         {
             _warehouseService = warehouseService;
         }
 
         // Return list of all Warehouses
-        // GET: api/<WarehouseController>/warehouses
-        [HttpGet("warehouses")]
+        // GET: api/<WarehousesController>/warehouses
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<WarehouseEntity>), StatusCodes.Status200OK)]
         public IActionResult Get()
         {
@@ -34,8 +34,8 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(response);
         }
 
-        // GET api/<WarehouseController>/5
-        [HttpGet("warehouses/{id}")]
+        // GET api/<WarehousesController>/5
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
         public IActionResult Get(Guid id)
         {
@@ -43,8 +43,8 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        // POST api/<WarehouseController>
-        [HttpPost("warehouses")]
+        // POST api/<WarehousesController>
+        [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> Post([FromBody] WarehouseEntity warehouseEntity)
         {
@@ -52,8 +52,8 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        // DELETE api/<WarehouseController>/5
-        [HttpDelete("warehouses/{id}")]
+        // DELETE api/<WarehousesController>/5
+        [HttpDelete("{id}")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete(Guid id)
         {

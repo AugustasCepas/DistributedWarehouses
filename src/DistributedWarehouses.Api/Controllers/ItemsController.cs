@@ -12,11 +12,11 @@ namespace DistributedWarehouses.Api.Controllers
 {
     [Route("v1/[controller]")]
     [ApiController]
-    public class ItemController : ControllerBase
+    public class ItemsController : ControllerBase
     {
         private readonly IItemService _itemService;
 
-        public ItemController(
+        public ItemsController(
             IItemService itemService)
         {
             _itemService = itemService;
@@ -25,8 +25,8 @@ namespace DistributedWarehouses.Api.Controllers
         // Task End Points
 
         // Return list of all SKUs
-        // GET: <ItemController>/items
-        [HttpGet("items")]
+        // GET: <ItemsController>/items
+        [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ItemEntity>), StatusCodes.Status200OK)]
         public IActionResult Get()
         {
@@ -39,8 +39,8 @@ namespace DistributedWarehouses.Api.Controllers
         // // How many items left in each warehouseEntity
         // // How many items are reserved
         // // TODO: How many items are planned to be delivered soon
-        // // GET: <ItemController>/items/$SKU
-        [HttpGet("items/{SKU}")]
+        // // GET: <ItemsController>/items/$SKU
+        [HttpGet("{SKU}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
         public IActionResult Get(string SKU)
         {
@@ -50,8 +50,8 @@ namespace DistributedWarehouses.Api.Controllers
         }
 
         // Other End Points
-        // POST <ItemController>/items
-        [HttpPost("items")]
+        // POST <ItemsController>/items
+        [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> Post([FromBody] ItemEntity item)
         {
@@ -59,8 +59,8 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        // DELETE <ItemController>/items/$SKU
-        [HttpDelete("items/{SKU}")]
+        // DELETE <ItemsController>/items/$SKU
+        [HttpDelete("{SKU}")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public async Task<IActionResult> Delete(string SKU)
         {

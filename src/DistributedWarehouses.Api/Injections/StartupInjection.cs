@@ -25,6 +25,10 @@ namespace DistributedWarehouses.Api.Injections
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IWarehouseRetrievalService, WarehouseRetrievalService>();
 
+            services.AddScoped<IReservationRepository, ReservationRepository>();
+            services.AddScoped<IReservationService, ReservationService>();
+            services.AddScoped<IReservationRetrievalService, ReservationRetrievalService>();
+
             services.AddScoped<IWarehouseItemRepository, WarehouseItemRepository>();
         }
     }

@@ -12,8 +12,8 @@ namespace DistributedWarehouses.Infrastructure.Models
             ReservationItems = new HashSet<ReservationItem>();
         }
 
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? ExpirationTime { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime ExpirationTime { get; set; }
         public Guid Id { get; set; }
 
         public virtual ICollection<ReservationItem> ReservationItems { get; set; }

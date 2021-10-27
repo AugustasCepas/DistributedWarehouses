@@ -31,6 +31,12 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         public WarehouseEntity GetWarehouse(Guid id)
         {
+            // SELECT SUM(Quantity), SUM(ReservedQuantity) FROM(
+            //     SELECT WI.Quantity, SUM(RI.Quantity) as ReservedQuantity FROM WarehouseItem WI
+            // LEFT JOIN ReservationItem RI ON RI.Item = WI.Item AND RI.Warehouse = WI.Warehouse
+            // WHERE WI.Warehouse = '3FA85F64-5717-4562-B3FC-2C963F66AFA6'
+            // GROUP BY WI.Item, WI.Quantity
+            //     ) sub
             return _distributedWarehousesContext.Warehouses
                 .Where(w => w.Id == id)
                 .Select(i => new WarehouseEntity
