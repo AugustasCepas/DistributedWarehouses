@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
@@ -9,8 +10,8 @@ namespace DistributedWarehouses.Domain.Repositories
     {
         IEnumerable<ItemEntity> GetItems();
         IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string SKU);
-        ItemEntity GetItem(string SKU);
+        ItemEntity GetItem(string sku);
         Task<int> AddItem(ItemEntity item);
-        Task<int> RemoveItem(string SKU);
+        Task<int> RemoveItem(string sku);
     }
 }

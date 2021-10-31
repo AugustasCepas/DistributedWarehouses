@@ -46,13 +46,13 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             var reservationItems = _distributedWarehousesContext.ReservationItems;
 
             var query = warehouseItems
-                .GroupJoin(reservationItems, warehouseItem => new {warehouseItem.Item, warehouseItem.Warehouse},
-                    reservationItem => new {reservationItem.Item, reservationItem.Warehouse},
-                    (warehouseItem, reservationItemGroup) => new {warehouseItem, reservationItemGroup})
+                .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
+                    reservationItem => new { reservationItem.Item, reservationItem.Warehouse },
+                    (warehouseItem, reservationItemGroup) => new { warehouseItem, reservationItemGroup })
                 .SelectMany(t => t.reservationItemGroup.DefaultIfEmpty(),
-                    (t, reservationItem) => new {t, reservationItem})
+                    (t, reservationItem) => new { t, reservationItem })
                 .Where(t => t.t.warehouseItem.Warehouse == id)
-                .GroupBy(t => new {t.t.warehouseItem.Item, WarehouseQuantity = t.t.warehouseItem.Quantity},
+                .GroupBy(t => new { t.t.warehouseItem.Item, WarehouseQuantity = t.t.warehouseItem.Quantity },
                     t => t.reservationItem)
                 .Select(g => new
                 {
@@ -139,6 +139,25 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             _distributedWarehousesContext.WarehouseItems.Remove(
                 await _distributedWarehousesContext.FindAsync<WarehouseItemModel>(item, warehouse));
             return await _distributedWarehousesContext.SaveChangesAsync();
+        }
+
+        public async Task<int> UpdateWarehouseItemQuantity(string item, Guid warehouse, int quantity)
+        {
+            var warehouseItem = _distributedWarehousesContext.WarehouseItems
+                .Where(i => i.Item == item && i.Warehouse == warehouse)
+                .Select(i => new WarehouseItemModel
+                {
+                    Quantity = i.Quantity,
+                    Item = i.Item,
+                    Warehouse = i.Warehouse
+                }).FirstOrDefault();
+
+            if (warehouseItem == null) return 0;
+
+            warehouseItem.Quantity -= quantity;
+            _distributedWarehousesContext.WarehouseItems.Update(warehouseItem);
+            return await _distributedWarehousesContext.SaveChangesAsync();
+
         }
     }
 }

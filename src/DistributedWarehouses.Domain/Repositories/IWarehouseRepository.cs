@@ -20,5 +20,6 @@ namespace DistributedWarehouses.Domain
         WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse);
         public Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> RemoveWarehouseItem(string item, Guid warehouse);
+        Task<int> UpdateWarehouseItemQuantity(string item, Guid warehouse, int quantity);
     }
 }

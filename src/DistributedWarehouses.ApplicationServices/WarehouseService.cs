@@ -70,5 +70,11 @@ namespace DistributedWarehouses.ApplicationServices
         {
             return _warehouseRetrievalService.RemoveWarehouseItem(item, warehouse);
         }
+
+        public Task<int> ItemSold(ItemSellDto dto)
+        {
+            var result = _warehouseRetrievalService.ItemSold(dto);
+            return result;
+        }
     }
 }

@@ -5,8 +5,8 @@ namespace DistributedWarehouses.Dto
 {
     public class ItemDto
     {
-        public string SKU { get; set; } = String.Empty;
-        public string Title { get; set; } = String.Empty;
+        public string SKU { get; set; }
+        public string Title { get; set; }
         public IEnumerable<ItemInWarehousesInfoDto> InWarehouses { get; set; } = new List<ItemInWarehousesInfoDto>();
     }
 }

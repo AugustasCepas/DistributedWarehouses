@@ -25,5 +25,6 @@ namespace DistributedWarehouses.Domain.Repositories
         ReservationItemEntity GetReservationItem(Guid reservation);
         Task<int> AddReservationItem(ReservationItemEntity reservationItemEntity);
         int RemoveReservationItem(string item, Guid warehouse, Guid reservation);
+        int RemoveReservationItem(ReservationItemEntity reservationItemEntity);
     }
 }

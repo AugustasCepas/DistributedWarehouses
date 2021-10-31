@@ -142,5 +142,18 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 _distributedWarehousesContext.Find<ReservationItemModel>(item, warehouse, reservation));
             return _distributedWarehousesContext.SaveChanges();
         }
+
+        public int RemoveReservationItem(ReservationItemEntity reservationItemEntity)
+        {
+            ReservationItemModel itemReservation = new ReservationItemModel
+            {
+                Quantity = reservationItemEntity.Quantity,
+                Item = reservationItemEntity.Item,
+                Warehouse = reservationItemEntity.Warehouse
+            };
+
+            _distributedWarehousesContext.ReservationItems.Remove(itemReservation);
+            return _distributedWarehousesContext.SaveChanges();
+        }
     }
 }

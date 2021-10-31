@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.RetrievalServices;
@@ -10,6 +12,7 @@ namespace DistributedWarehouses.DomainServices
     public class ItemRetrievalService : IItemRetrievalService
     {
         private readonly IItemRepository _itemRepository;
+
 
         public ItemRetrievalService(IItemRepository itemRepository)
         {

@@ -47,6 +47,24 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(response);
         }
 
+        // POST <WarehouseItemsController>
+        [HttpPost]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddItem([FromBody] WarehouseItemEntity warehouseItemEntity)
+        {
+            var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
+            return Ok(result);
+        }
+
+        // POST <ItemsController>/items
+        // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
+        [HttpPost("sell")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SellItem(ItemSellDto dto)
+        {
+            var result = await _warehouseService.ItemSold(dto);
+            return Ok(result);
+        }
         // // POST <WarehousesController>
         // [HttpPost]
         // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
@@ -78,14 +96,5 @@ namespace DistributedWarehouses.Api.Controllers
         //
         //     return Ok(response);
         // }
-
-        // POST <WarehouseItemsController>
-        [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] WarehouseItemEntity warehouseItemEntity)
-        {
-            var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
-            return Ok(result);
-        }
     }
 }

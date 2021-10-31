@@ -58,10 +58,9 @@ namespace DistributedWarehouses.DomainServices
                     transaction.Commit();
                     return 1;
                 }
-                catch (Exception e)
+                catch 
                 {
                     transaction.Rollback();
-                    // Console.WriteLine(e);
                     throw;
                 }
             }
@@ -91,22 +90,14 @@ namespace DistributedWarehouses.DomainServices
 
         public int RemoveReservationItem(string item, Guid warehouse, Guid reservation)
         {
-            try
-            {
-                var result = _reservationRepository.RemoveReservationItem(item, warehouse, reservation);
+            var result = _reservationRepository.RemoveReservationItem(item, warehouse, reservation);
 
-                if (_reservationRepository.GetReservationItem(reservation) == null)
-                {
-                    _reservationRepository.RemoveReservation(reservation);
-                }
-
-                return result;
-            }
-            catch (Exception e)
+            if (_reservationRepository.GetReservationItem(reservation) == null)
             {
-                // Console.WriteLine(e);
-                throw;
+                _reservationRepository.RemoveReservation(reservation);
             }
+
+            return result;
         }
     }
 }
