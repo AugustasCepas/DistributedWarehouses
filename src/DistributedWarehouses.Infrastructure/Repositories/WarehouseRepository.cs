@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain;
+using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using WarehouseEntity = DistributedWarehouses.Domain.Entities.WarehouseEntity;

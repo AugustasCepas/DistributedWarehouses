@@ -5,12 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="10.3.4" />
+    <ProjectReference Include="..\DistributedWarehouses.Domain\DistributedWarehouses.Domain.csproj" />
+    <ProjectReference Include="..\DistributedWarehouses.Infrastructure\DistributedWarehouses.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedWarehouses.Domain\DistributedWarehouses.Domain.csproj" />
-    <ProjectReference Include="..\DistributedWarehouses.Infrastructure\DistributedWarehouses.Infrastructure.csproj" />
+    <Folder Include="Validators\" />
   </ItemGroup>
 
 </Project>

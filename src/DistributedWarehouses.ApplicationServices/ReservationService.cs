@@ -33,7 +33,7 @@ namespace DistributedWarehouses.ApplicationServices
 
         public ReservationIdDto AddReservation(ReservationInputDto reservationInputDto)
         {
-            return _reservationRetrievalRepository.AddReservation(reservationInputDto);
+            return new ReservationIdDto(_reservationRetrievalRepository.ReserveItemInWarehouse(reservationInputDto));
         }
 
         public int RemoveReservation(Guid id)

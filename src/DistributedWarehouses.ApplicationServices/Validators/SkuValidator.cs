@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using DistributedWarehouses.Domain.Repositories;
+﻿using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.Resources;
 using FluentValidation;
-using FluentValidation.Results;
 
-namespace DistributedWarehouses.DomainServices.Validators
+namespace DistributedWarehouses.ApplicationServices.Validators
 {
     public class SkuValidator : AbstractValidator<string>
     {
@@ -25,7 +18,7 @@ namespace DistributedWarehouses.DomainServices.Validators
 
         private void InputRule()
         {
-            RuleFor(sku => sku).NotNull().NotEmpty().Matches(_skuPattern)
+            RuleFor(sku => sku).Cascade(CascadeMode.Stop).NotNull().NotEmpty().Matches(_skuPattern)
                 .WithMessage(string.Format(ErrorMessageResource.NotSupported, "sku", _skuPattern)).WithErrorCode("400");
         }
 
