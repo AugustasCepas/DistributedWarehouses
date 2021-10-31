@@ -10,7 +10,7 @@ namespace DistributedWarehouses.Domain.Services
     {
         IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
-        int AddReservation(ReservationInputDto reservationInputDto);
+        ReservationIdDto AddReservation(ReservationInputDto reservationInputDto);
         int RemoveReservation(Guid id);
 
 

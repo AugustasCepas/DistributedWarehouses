@@ -31,11 +31,9 @@ namespace DistributedWarehouses.ApplicationServices
             return result;
         }
 
-        public int AddReservation(ReservationInputDto reservationInputDto)
+        public ReservationIdDto AddReservation(ReservationInputDto reservationInputDto)
         {
-            var result = _reservationRetrievalRepository.AddReservation(reservationInputDto);
-
-            return result;
+            return _reservationRetrievalRepository.AddReservation(reservationInputDto);
         }
 
         public int RemoveReservation(Guid id)

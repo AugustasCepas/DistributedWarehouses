@@ -61,11 +61,20 @@ namespace DistributedWarehouses.Domain.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to notFound.
+        /// </summary>
+        public static string NotFound {
+            get {
+                return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to notSupportedSkuReceived.
         /// </summary>
-        public static string NotSupportedSku {
+        public static string NotSupported {
             get {
-                return ResourceManager.GetString("NotSupportedSku", resourceCulture);
+                return ResourceManager.GetString("NotSupported", resourceCulture);
             }
         }
     }

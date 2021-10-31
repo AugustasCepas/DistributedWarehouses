@@ -5,6 +5,7 @@ using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -43,7 +44,7 @@ namespace DistributedWarehouses.Api.Controllers
         }
 
         // GET api/<ReservationsController>/5
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetValueById")]
         [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
         public IActionResult Get(Guid id)
         {
@@ -53,11 +54,11 @@ namespace DistributedWarehouses.Api.Controllers
 
         // POST api/<ReservationsController>
         [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ReservationIdDto), StatusCodes.Status201Created)]
         public IActionResult Post([FromBody] ReservationInputDto reservationInputDto)
         {
             var result = _reservationService.AddReservation(reservationInputDto);
-            return Ok(result);
+            return Created(Url.Link("GetValueById", new { id = result.ReservationId }), result);
         }
 
         // // DELETE api/<ReservationsController>/5

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
+using Microsoft.EntityFrameworkCore;
 using ItemEntity = DistributedWarehouses.Domain.Entities.ItemEntity;
 using ItemModel = DistributedWarehouses.Infrastructure.Models.Item;
 
@@ -84,6 +85,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             _distributedWarehousesContext.Items.Remove(await _distributedWarehousesContext.FindAsync<ItemModel>(sku));
             return await _distributedWarehousesContext.SaveChangesAsync();
+        }
+
+        public Task<bool> ExistsAsync(string sku)
+        {
+            return _distributedWarehousesContext.Items.AnyAsync(i => i.Sku.Equals(sku));
         }
     }
 }
