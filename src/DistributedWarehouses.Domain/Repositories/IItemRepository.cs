@@ -12,6 +12,7 @@ namespace DistributedWarehouses.Domain.Repositories
         IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string SKU);
         ItemEntity GetItem(string sku);
         Task<int> AddItem(ItemEntity item);
-        Task<int> RemoveItem(string sku);
+        Task<int> RemoveItem(string SKU);
+        public Task<bool> ExistsAsync(string sku);
     }
 }

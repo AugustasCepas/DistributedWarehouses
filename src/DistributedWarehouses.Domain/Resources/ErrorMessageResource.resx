@@ -117,8 +117,20 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="NotSupportedSku" xml:space="preserve">
-    <value>Supported {0} must be provided. Must be alphanumeric and match expression: {1}</value>
+  <data name="InsufficientAmount" xml:space="preserve">
+    <value>There is not enough items. Try reserving less items or add items to warehouses.</value>
+    <comment>InsufficientAmountException</comment>
+  </data>
+  <data name="InsufficientStorage" xml:space="preserve">
+    <value>There is not enough space in the warehouse. Try selling items or adding warehouses.</value>
+    <comment>InsufficientStorageException</comment>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Existing {0} must be provided.</value>
+    <comment>NotFoundException</comment>
+  </data>
+  <data name="NotSupported" xml:space="preserve">
+    <value>Supported {0} must be provided. Must match expression: {1}.</value>
     <comment>BadRequestException</comment>
   </data>
 </root>

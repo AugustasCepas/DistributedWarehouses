@@ -48,7 +48,7 @@ namespace DistributedWarehouses.Api.Injections
 
         private static void AddValidators(this IServiceCollection services)
         {
-            services.AddSingleton<IValidator<string>, SkuValidator>();
+            services.AddScoped<IValidator<string>, SkuValidator>();
         }
     }
 }

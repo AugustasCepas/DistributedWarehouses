@@ -61,11 +61,38 @@ namespace DistributedWarehouses.Domain.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Supported {0} must be provided. Must be alphanumeric and match expression: {1}.
+        ///   Looks up a localized string similar to There is not enough items. Try reserving less items or add items to warehouses..
         /// </summary>
-        public static string NotSupportedSku {
+        public static string InsufficientAmount {
             get {
-                return ResourceManager.GetString("NotSupportedSku", resourceCulture);
+                return ResourceManager.GetString("InsufficientAmount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There is not enough space in the warehouse. Try selling items or adding warehouses..
+        /// </summary>
+        public static string InsufficientStorage {
+            get {
+                return ResourceManager.GetString("InsufficientStorage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Existing {0} must be provided..
+        /// </summary>
+        public static string NotFound {
+            get {
+                return ResourceManager.GetString("NotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Supported {0} must be provided. Must match expression: {1}..
+        /// </summary>
+        public static string NotSupported {
+            get {
+                return ResourceManager.GetString("NotSupported", resourceCulture);
             }
         }
     }

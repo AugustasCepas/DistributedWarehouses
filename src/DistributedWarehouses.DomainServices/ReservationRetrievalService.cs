@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
+using DistributedWarehouses.Domain.Exceptions;
 using DistributedWarehouses.Domain.Repositories;
+using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.RetrievalServices;
 using DistributedWarehouses.Dto;
 
@@ -30,7 +32,7 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.GetReservation(id);
         }
 
-        public int AddReservation(ReservationInputDto reservationInputDto)
+        public ReservationIdDto AddReservation(ReservationInputDto reservationInputDto)
         {
             using (var transaction = _reservationRepository.GetTransaction())
             {
@@ -55,8 +57,13 @@ namespace DistributedWarehouses.DomainServices
                         itemsToReserve -= itemsInWarehouse;
                     }
 
+                    if (itemsToReserve > 0)
+                    {
+                        throw new InsufficientAmountException(ErrorMessageResource.InsufficientAmount);
+                    }
+
                     transaction.Commit();
-                    return 1;
+                    return new ReservationIdDto(reservation.Id);
                 }
                 catch 
                 {

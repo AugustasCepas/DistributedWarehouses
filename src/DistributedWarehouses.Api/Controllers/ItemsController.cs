@@ -1,8 +1,11 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
+using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.DomainServices.Validators;
 using DistributedWarehouses.Dto;
@@ -43,14 +46,21 @@ namespace DistributedWarehouses.Api.Controllers
         // How many items are reserved
         // TODO: How many items are planned to be delivered soon
         // GET: <ItemsController>/$SKU
-        [HttpGet("{sku:regex(^[[a-zA-Z0-9]]*$)}")]
+        [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoAboutOneSKU (string sku)
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
         {
-            _validator.Validate(sku);
-
+            var validationResult = await  _validator.ValidateAsync(sku);
+            if (!validationResult.IsValid)
+            {
+                return new ObjectResult(new ErrorResponse {Message = validationResult.Errors.First().ErrorMessage})
+                {
+                    StatusCode = int.Parse(validationResult.Errors.First().ErrorCode),
+                };
+            }
             var item = _itemService.GetItemInWarehousesInfo(sku);
-
             return Ok(item);
         }
 
