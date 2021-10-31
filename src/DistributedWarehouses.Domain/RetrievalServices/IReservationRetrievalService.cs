@@ -3,27 +3,21 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
-using Microsoft.EntityFrameworkCore.Storage;
 
-namespace DistributedWarehouses.Domain.Repositories
+namespace DistributedWarehouses.Domain.RetrievalServices
 {
-    public interface IReservationRepository
+    public interface IReservationRetrievalService
     {
-        IDbContextTransaction GetTransaction();
         IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
-        int AddReservation(ReservationEntity reservation);
-
-        int AddReservationItem(ReservationInputDto reservationInputDto, ReservationEntity reservation,
-            ItemInWarehousesInfoDto itemInWarehouses);
-
+        int AddReservation(ReservationInputDto reservationInputDto);
         int RemoveReservation(Guid id);
+
 
         // Reservation Item
         IEnumerable<ReservationItemEntity> GetReservationItems();
         ReservationItemEntity GetReservationItem(string item, Guid warehouse, Guid reservation);
-        ReservationItemEntity GetReservationItem(Guid reservation);
-        Task<int> AddReservationItem(ReservationItemEntity reservationItemEntity);
+        Task<int> AddReservationItem(ReservationItemEntity reservationItem);
         int RemoveReservationItem(string item, Guid warehouse, Guid reservation);
     }
 }

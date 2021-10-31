@@ -11,6 +11,6 @@ namespace DistributedWarehouses.Domain.Entities
         /// <summary>
         /// WarehouseEntity capacity in items
         /// </summary>
-        public int? Capacity { get; set; }
+        public int Capacity { get; set; }
     }
 }

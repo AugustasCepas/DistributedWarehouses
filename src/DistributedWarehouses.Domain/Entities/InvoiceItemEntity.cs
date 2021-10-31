@@ -2,12 +2,11 @@
 
 namespace DistributedWarehouses.Domain.Entities
 {
-    public class WarehouseItemEntity
+    public class InvoiceItemEntity
     {
-        public int Quantity { get; set; }
-
         public string Item { get; set; }
-
+        public int Quantity { get; set; }
         public Guid Warehouse { get; set; }
+        public Guid Invoice { get; set; }
     }
 }

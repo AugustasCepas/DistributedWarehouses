@@ -2,9 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using DistributedWarehouses.ApplicationServices;
-using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Entities;
+using DistributedWarehouses.Domain.Services;
+using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
 
 
@@ -23,41 +23,68 @@ namespace DistributedWarehouses.Api.Controllers
             _warehouseService = warehouseService;
         }
 
+        //Return info about one warehouse
+        //How many goods are stored
+        //How many goods are reserved
+        //TODO: How much free space available
+        // GET <WarehousesController>/{id}
+        [HttpGet("{warehouseGuid:guid}")]
+        [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
+        public IActionResult ReturnInfoOfOneWarehouse(Guid warehouseGuid)
+        {
+            var result = _warehouseService.GetWarehouseInfo(warehouseGuid);
+            return Ok(result);
+        }
+
         // Return list of all Warehouses
-        // GET: api/<WarehousesController>/warehouses
+        // GET: <WarehousesController>/warehouses
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<WarehouseEntity>), StatusCodes.Status200OK)]
-        public IActionResult Get()
+        public IActionResult ReturnListOfAllWarehouses()
         {
             var response = _warehouseService.GetWarehouses();
 
             return Ok(response);
         }
 
-        // GET api/<WarehousesController>/5
-        [HttpGet("{id}")]
-        [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
-        public IActionResult Get(Guid id)
-        {
-            var result = _warehouseService.GetWarehouse(id);
-            return Ok(result);
-        }
+        // // POST <WarehousesController>
+        // [HttpPost]
+        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        // public async Task<IActionResult> Post([FromBody] WarehouseEntity warehouseEntity)
+        // {
+        //     var result = await _warehouseService.AddWarehouse(warehouseEntity);
+        //     return Ok(result);
+        // }
+        //
+        // // DELETE <WarehousesController>/5
+        // [HttpDelete("{id}")]
+        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        // public async Task<IActionResult> Delete(Guid id)
+        // {
+        //     var result = await _warehouseService.RemoveWarehouse(id);
+        //     return Ok(result);
+        // }
 
-        // POST api/<WarehousesController>
+
+        // Warehouse Items
+
+        // Return list of all WarehouseItems
+        // GET: <WarehouseItemsController>
+        // [HttpGet]
+        // [ProducesResponseType(typeof(IEnumerable<WarehouseItemEntity>), StatusCodes.Status200OK)]
+        // public IActionResult Get()
+        // {
+        //     var response = _warehouseService.GetWarehouseItems();
+        //
+        //     return Ok(response);
+        // }
+
+        // POST <WarehouseItemsController>
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Post([FromBody] WarehouseEntity warehouseEntity)
+        public async Task<IActionResult> Post([FromBody] WarehouseItemEntity warehouseItemEntity)
         {
-            var result = await _warehouseService.AddWarehouse(warehouseEntity);
-            return Ok(result);
-        }
-
-        // DELETE api/<WarehousesController>/5
-        [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> Delete(Guid id)
-        {
-            var result = await _warehouseService.RemoveWarehouse(id);
+            var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
             return Ok(result);
         }
     }

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Entities
 {
@@ -11,5 +7,12 @@ namespace DistributedWarehouses.Domain.Entities
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime ExpirationTime { get; set; }
+
+        public ReservationEntity()
+        {
+            Id = Guid.NewGuid();
+            CreatedAt = DateTime.Now;
+            ExpirationTime = DateTime.Now.AddDays(14);
+        }
     }
 }

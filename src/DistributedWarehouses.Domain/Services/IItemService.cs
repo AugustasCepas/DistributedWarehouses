@@ -3,13 +3,15 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
 
-namespace DistributedWarehouses.Domain.Repositories
+namespace DistributedWarehouses.Domain.Services
 {
-    public interface IItemRepository
+    public interface IItemService
     {
+        // Task Functions
         IEnumerable<ItemEntity> GetItems();
-        IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string SKU);
-        ItemEntity GetItem(string SKU);
+        ItemDto GetItemInWarehousesInfo(string SKU);
+
+        // Other Functions
         Task<int> AddItem(ItemEntity item);
         Task<int> RemoveItem(string SKU);
     }
