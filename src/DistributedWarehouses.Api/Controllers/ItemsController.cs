@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.Services;
-using DistributedWarehouses.DomainServices.Validators;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using FluentValidation;
@@ -48,19 +47,9 @@ namespace DistributedWarehouses.Api.Controllers
         // GET: <ItemsController>/$SKU
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
         {
-            var validationResult = await  _validator.ValidateAsync(sku);
-            if (!validationResult.IsValid)
-            {
-                return new ObjectResult(new ErrorResponse {Message = validationResult.Errors.First().ErrorMessage})
-                {
-                    StatusCode = int.Parse(validationResult.Errors.First().ErrorCode),
-                };
-            }
-            var item = _itemService.GetItemInWarehousesInfo(sku);
+            var item = await _itemService.GetItemInWarehousesInfo(sku);
             return Ok(item);
         }
 

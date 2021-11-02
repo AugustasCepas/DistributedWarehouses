@@ -7,7 +7,7 @@ using DistributedWarehouses.Domain.Resources;
 
 namespace DistributedWarehouses.Domain.Exceptions
 {
-    public class InsufficientStorageException : Exception
+    public class InsufficientStorageException : ConflictException
     {
         public InsufficientStorageException(string message) : base(message)
         { 

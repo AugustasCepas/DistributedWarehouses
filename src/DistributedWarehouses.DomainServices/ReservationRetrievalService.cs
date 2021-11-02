@@ -32,21 +32,20 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.GetReservation(id);
         }
 
-        public ReservationIdDto AddReservation(ReservationInputDto reservationInputDto)
+        public Guid ReserveItemInWarehouse(ReservationInputDto reservationInputDto)
         {
             using (var transaction = _reservationRepository.GetTransaction())
             {
                 try
                 {
-                    var reservation = new ReservationEntity();
-                    _reservationRepository.AddReservation(reservation);
+                    var reservation = AddReservation();
 
                     var itemInWarehouses =
                         _itemRepository.GetItemInWarehousesInfo(reservationInputDto.ItemSku)
                             .OrderByDescending(i => i.StoredQuantity - i.ReservedQuantity);
 
                     var itemsToReserve = reservationInputDto.Quantity;
-
+                    //TODO: Need to optimize
                     foreach (var warehouse in itemInWarehouses)
                     {
                         if (itemsToReserve <= 0) break;
@@ -63,7 +62,7 @@ namespace DistributedWarehouses.DomainServices
                     }
 
                     transaction.Commit();
-                    return new ReservationIdDto(reservation.Id);
+                    return reservation.Id;
                 }
                 catch 
                 {
@@ -71,6 +70,13 @@ namespace DistributedWarehouses.DomainServices
                     throw;
                 }
             }
+        }
+
+        private ReservationEntity AddReservation()
+        {
+            var reservation = new ReservationEntity();
+            _reservationRepository.AddReservation(reservation);
+            return reservation;
         }
 
         public int RemoveReservation(Guid id)

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
 
-namespace DistributedWarehouses.Domain
+namespace DistributedWarehouses.Domain.Repositories
 {
     public interface IWarehouseRepository
     {
