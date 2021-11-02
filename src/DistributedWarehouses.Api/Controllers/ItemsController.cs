@@ -47,8 +47,6 @@ namespace DistributedWarehouses.Api.Controllers
         // GET: <ItemsController>/$SKU
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
         {
             var item = await _itemService.GetItemInWarehousesInfo(sku);

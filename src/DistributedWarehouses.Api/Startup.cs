@@ -43,14 +43,13 @@ namespace DistributedWarehouses.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            
-            if (env.IsDevelopment())
+            app.UseExceptionHandler(new ExceptionHandlerOptions()
             {
-                app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DistributedWarehouses.Api v1"));
-            } 
-            app.UseExceptionHandler("/error");
+                AllowStatusCode404Response = true,
+                ExceptionHandlingPath = "/error"
+            }); 
+            app.UseSwagger();
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "DistributedWarehouses.Api v1"));
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();
