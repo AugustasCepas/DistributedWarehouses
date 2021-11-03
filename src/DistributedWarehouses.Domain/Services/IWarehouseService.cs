@@ -19,7 +19,7 @@ namespace DistributedWarehouses.Domain.Services
         WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse);
         Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> RemoveWarehouseItem(string item, Guid warehouse);
-        Task<int> ItemSold(ItemSellDto dto);
+        Task<int> SellWarehouseItem(ItemSellDto dto);
 
     }
 }

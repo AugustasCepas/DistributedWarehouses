@@ -28,11 +28,11 @@ namespace DistributedWarehouses.Api.Controllers
         //How many goods are reserved
         //TODO: How much free space available
         // GET <WarehousesController>/{id}
-        [HttpGet("{warehouseGuid:guid}")]
+        [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoOfOneWarehouse(Guid warehouseGuid)
+        public IActionResult ReturnInfoOfOneWarehouse(Guid id)
         {
-            var result = _warehouseService.GetWarehouseInfo(warehouseGuid);
+            var result = _warehouseService.GetWarehouseInfo(id);
             return Ok(result);
         }
 
@@ -50,7 +50,7 @@ namespace DistributedWarehouses.Api.Controllers
         // POST <WarehouseItemsController>
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> AddItem([FromBody] WarehouseItemEntity warehouseItemEntity)
+        public async Task<IActionResult> AddWarehouseItem([FromBody] WarehouseItemEntity warehouseItemEntity)
         {
             var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
             return Ok(result);
@@ -58,43 +58,12 @@ namespace DistributedWarehouses.Api.Controllers
 
         // POST <ItemsController>/items
         // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
-        [HttpPost("sell")]
+        [HttpPost("sell-item")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SellItem(ItemSellDto dto)
+        public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
         {
-            var result = await _warehouseService.ItemSold(dto);
+            var result = await _warehouseService.SellWarehouseItem(dto);
             return Ok(result);
         }
-        // // POST <WarehousesController>
-        // [HttpPost]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Post([FromBody] WarehouseEntity warehouseEntity)
-        // {
-        //     var result = await _warehouseService.AddWarehouse(warehouseEntity);
-        //     return Ok(result);
-        // }
-        //
-        // // DELETE <WarehousesController>/5
-        // [HttpDelete("{id}")]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Delete(Guid id)
-        // {
-        //     var result = await _warehouseService.RemoveWarehouse(id);
-        //     return Ok(result);
-        // }
-
-
-        // Warehouse Items
-
-        // Return list of all WarehouseItems
-        // GET: <WarehouseItemsController>
-        // [HttpGet]
-        // [ProducesResponseType(typeof(IEnumerable<WarehouseItemEntity>), StatusCodes.Status200OK)]
-        // public IActionResult Get()
-        // {
-        //     var response = _warehouseService.GetWarehouseItems();
-        //
-        //     return Ok(response);
-        // }
     }
 }

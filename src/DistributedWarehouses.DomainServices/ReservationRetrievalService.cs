@@ -38,7 +38,19 @@ namespace DistributedWarehouses.DomainServices
             {
                 try
                 {
-                    var reservation = AddReservation();
+                    Guid reservationId;
+
+                    if (reservationInputDto.Reservation == Guid.Empty)
+                    {
+                        var reservation = new ReservationEntity();
+                         reservationId = reservation.Id;
+                        _reservationRepository.AddReservation(reservation);
+                    }
+                    else
+                    {
+                         reservationId = (Guid)reservationInputDto.Reservation;
+                    }
+
 
                     var itemInWarehouses =
                         _itemRepository.GetItemInWarehousesInfo(reservationInputDto.ItemSku)
@@ -52,7 +64,7 @@ namespace DistributedWarehouses.DomainServices
 
                         var itemsInWarehouse = warehouse.StoredQuantity - warehouse.ReservedQuantity;
 
-                        _reservationRepository.AddReservationItem(reservationInputDto, reservation, warehouse);
+                        _reservationRepository.AddReservationItem(reservationInputDto, reservationId, warehouse);
                         itemsToReserve -= itemsInWarehouse;
                     }
 
@@ -62,7 +74,7 @@ namespace DistributedWarehouses.DomainServices
                     }
 
                     transaction.Commit();
-                    return reservation.Id;
+                    return new ReservationIdDto(reservationId);
                 }
                 catch 
                 {
@@ -84,8 +96,6 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.RemoveReservation(id);
         }
 
-
-        // Reservation Item
         public IEnumerable<ReservationItemEntity> GetReservationItems()
         {
             return _reservationRepository.GetReservationItems();

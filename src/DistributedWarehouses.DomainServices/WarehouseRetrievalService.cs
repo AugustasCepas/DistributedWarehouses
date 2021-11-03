@@ -87,7 +87,7 @@ namespace DistributedWarehouses.DomainServices
             return _warehouseRepository.RemoveWarehouseItem(item, warehouse);
         }
 
-        public async Task<int> ItemSold(ItemSellDto dto)
+        public async Task<int> SellWarehouseItem(ItemSellDto dto)
         {
             await _warehouseRepository.UpdateWarehouseItemQuantity(dto.SKU, dto.WarehouseId, dto.Quantity);
 

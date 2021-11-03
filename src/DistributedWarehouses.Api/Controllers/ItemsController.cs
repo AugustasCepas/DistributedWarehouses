@@ -52,23 +52,5 @@ namespace DistributedWarehouses.Api.Controllers
             var item = await _itemService.GetItemInWarehousesInfo(sku);
             return Ok(item);
         }
-
-        // // POST <ItemsController>/items
-        // [HttpPost]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Post([FromBody] ItemEntity item)
-        // {
-        //     var result = await _itemService.AddItem(item);
-        //     return Ok(result);
-        // }
-        //
-        // // DELETE <ItemsController>/items/$SKU
-        // [HttpDelete("{SKU}")]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Delete(string SKU)
-        // {
-        //     var result = await _itemService.RemoveItem(SKU);
-        //     return Ok(result);
-        // }
     }
 }
