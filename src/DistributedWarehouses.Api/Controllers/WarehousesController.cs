@@ -50,7 +50,7 @@ namespace DistributedWarehouses.Api.Controllers
         // POST <WarehouseItemsController>
         [HttpPost]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> AddItem([FromBody] WarehouseItemEntity warehouseItemEntity)
+        public async Task<IActionResult> AddWarehouseItem([FromBody] WarehouseItemEntity warehouseItemEntity)
         {
             var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
             return Ok(result);

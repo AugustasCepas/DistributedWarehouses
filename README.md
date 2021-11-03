@@ -32,3 +32,11 @@ Main functions:
 DB information:
 Server=tcp:distributed-warehouses.database.windows.net,1433;Database=DistributedWarehouses;
 User ID=cepas;Password=Augustas!
+
+TODO:
+Implement AutoMapper
+Implement Validator
+Change functions to Tasks<T> type where possible and needed
+Update endpoints (change naming, add comments)
+Refactor code
+Add more comments
