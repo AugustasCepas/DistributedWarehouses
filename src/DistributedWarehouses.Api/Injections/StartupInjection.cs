@@ -1,10 +1,10 @@
 ﻿using DistributedWarehouses.ApplicationServices;
+using DistributedWarehouses.ApplicationServices.Validators;
 using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.RetrievalServices;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.DomainServices;
-using DistributedWarehouses.DomainServices.Validators;
 using DistributedWarehouses.Infrastructure.Repositories;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;

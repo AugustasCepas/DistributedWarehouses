@@ -85,8 +85,6 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-
-        // Invoice Item
         public IEnumerable<InvoiceItemEntity> GetInvoiceItems()
         {
             return _distributedWarehousesContext.InvoiceItems.Select(i => new InvoiceItemEntity

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.Services;
-using DistributedWarehouses.DomainServices.Validators;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using FluentValidation;
@@ -45,30 +44,10 @@ namespace DistributedWarehouses.Api.Controllers
         // GET: <ItemsController>/$SKU
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReturnInfoAboutOneSKU(string sku)
+        public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
         {
-            var item = _itemService.GetItemInWarehousesInfo(sku);
+            var item = await _itemService.GetItemInWarehousesInfo(sku);
             return Ok(item);
         }
-
-        // // POST <ItemsController>/items
-        // [HttpPost]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Post([FromBody] ItemEntity item)
-        // {
-        //     var result = await _itemService.AddItem(item);
-        //     return Ok(result);
-        // }
-        //
-        // // DELETE <ItemsController>/items/$SKU
-        // [HttpDelete("{SKU}")]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Delete(string SKU)
-        // {
-        //     var result = await _itemService.RemoveItem(SKU);
-        //     return Ok(result);
-        // }
     }
 }

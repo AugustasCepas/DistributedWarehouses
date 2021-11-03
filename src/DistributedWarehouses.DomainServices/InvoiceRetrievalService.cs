@@ -43,8 +43,6 @@ namespace DistributedWarehouses.DomainServices
         }
 
 
-        // Invoice Item
-
         public IEnumerable<InvoiceItemEntity> GetInvoiceItems()
         {
             return _invoiceRepository.GetInvoiceItems();

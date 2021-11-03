@@ -7,5 +7,6 @@ namespace DistributedWarehouses.Dto
     {
         public string ItemSku { get; set; }
         public int Quantity { get; set; }
+        public Guid? Reservation { get; set; }
     }
 }

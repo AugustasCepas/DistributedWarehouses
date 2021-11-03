@@ -20,7 +20,6 @@ namespace DistributedWarehouses.ApplicationServices
         public IEnumerable<WarehouseEntity> GetWarehouses()
         {
             var result = _warehouseRetrievalService.GetWarehouses();
-            // _validator.ValidateOperation(result, operationId);
 
             return result;
         }
@@ -71,9 +70,9 @@ namespace DistributedWarehouses.ApplicationServices
             return _warehouseRetrievalService.RemoveWarehouseItem(item, warehouse);
         }
 
-        public Task<int> ItemSold(ItemSellDto dto)
+        public Task<int> SellWarehouseItem(ItemSellDto dto)
         {
-            var result = _warehouseRetrievalService.ItemSold(dto);
+            var result = _warehouseRetrievalService.SellWarehouseItem(dto);
             return result;
         }
     }

@@ -49,7 +49,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 }).FirstOrDefault();
         }
 
-        public int AddReservationItem(ReservationInputDto reservationInputDto, ReservationEntity reservation,
+        public int AddReservationItem(ReservationInputDto reservationInputDto, Guid reservationId,
             ItemInWarehousesInfoDto itemInWarehouse)
         {
             var itemsInWarehouse = itemInWarehouse.StoredQuantity - itemInWarehouse.ReservedQuantity;
@@ -63,7 +63,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 Quantity = reservationQuantity,
                 Item = reservationInputDto.ItemSku,
                 Warehouse = itemInWarehouse.WarehouseId,
-                Reservation = reservation.Id
+                Reservation = reservationId
             });
             return _distributedWarehousesContext.SaveChanges();
         }
@@ -86,8 +86,6 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return _distributedWarehousesContext.SaveChanges();
         }
 
-
-        // Reservation Item
         public IEnumerable<ReservationItemEntity> GetReservationItems()
         {
             return _distributedWarehousesContext.ReservationItems.Select(i => new ReservationItemEntity
