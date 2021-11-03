@@ -20,7 +20,6 @@ namespace DistributedWarehouses.ApplicationServices
         public IEnumerable<WarehouseEntity> GetWarehouses()
         {
             var result = _warehouseRetrievalService.GetWarehouses();
-            // _validator.ValidateOperation(result, operationId);
 
             return result;
         }

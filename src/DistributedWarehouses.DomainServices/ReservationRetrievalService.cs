@@ -89,8 +89,6 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.RemoveReservation(id);
         }
 
-
-        // Reservation Item
         public IEnumerable<ReservationItemEntity> GetReservationItems()
         {
             return _reservationRepository.GetReservationItems();

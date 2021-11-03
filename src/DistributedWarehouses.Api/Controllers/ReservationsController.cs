@@ -32,17 +32,6 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        //// Return list of all Reservations
-        //// GET: <ReservationsController>/reservations
-        //[HttpGet]
-        //[ProducesResponseType(typeof(IEnumerable<ReservationEntity>), StatusCodes.Status200OK)]
-        //public IActionResult GetReservations()
-        //{
-        //    var response = _reservationService.GetReservations();
-
-        //    return Ok(response);
-        //}
-
         //// GET api/<ReservationsController>/5
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("{id:guid}", Name = "GetValueById")]
@@ -61,47 +50,5 @@ namespace DistributedWarehouses.Api.Controllers
             var result = _reservationService.AddReservation(reservationInputDto);
             return Created(Url.Link("GetValueById", new { id = result.ReservationId }), result);
         }
-
-        // // DELETE api/<ReservationsController>/5
-        // [HttpDelete("{id}")]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Delete(Guid id)
-        // {
-        //     var result = await _reservationService.RemoveReservation(id);
-        //     return Ok(result);
-        // }
-
-
-        // Reservation Item
-
-        // Return list of all ReservationItem
-        // GET: <ReservationItemController>/ReservationItem
-        // [HttpGet]
-        // [ProducesResponseType(typeof(IEnumerable<ReservationItemEntity>), StatusCodes.Status200OK)]
-        // public IActionResult Get()
-        // {
-        //     var response = _reservationService.GetReservationItems();
-        //
-        //     return Ok(response);
-        // }
-
-        // // GET api/<ReservationItemController>/5
-        // [HttpGet("{id}")]
-        // [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
-        // public IActionResult Get(Guid id)
-        // {
-        //     var result = _reservationService.GetReservationItem(id);
-        //     return Ok(result);
-        // }
-
-        // // POST api/<ReservationItemController>
-        // [HttpPost]
-        // [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        // public async Task<IActionResult> Post([FromBody] ReservationItemEntity invoiceItemEntity)
-        // {
-        //     var result = await _reservationService.AddReservationItem(invoiceItemEntity);
-        //     return Ok(result);
-        // }
-
     }
 }

@@ -86,8 +86,6 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return _distributedWarehousesContext.SaveChanges();
         }
 
-
-        // Reservation Item
         public IEnumerable<ReservationItemEntity> GetReservationItems()
         {
             return _distributedWarehousesContext.ReservationItems.Select(i => new ReservationItemEntity

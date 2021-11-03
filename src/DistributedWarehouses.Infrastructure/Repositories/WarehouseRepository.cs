@@ -99,8 +99,6 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-
-        // Warehouse Items
         public IEnumerable<WarehouseItemEntity> GetWarehouseItems()
         {
             return _distributedWarehousesContext.WarehouseItems.Select(i => new WarehouseItemEntity
