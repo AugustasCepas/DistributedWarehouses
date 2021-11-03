@@ -11,10 +11,12 @@ namespace DistributedWarehouses.ApplicationServices
     public class InvoiceService : IInvoiceService
     {
         private readonly IInvoiceRetrievalService _invoiceRetrievalRepository;
+        private readonly IMappingService _mappingService;
 
-        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalRepository)
+        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalRepository, IMappingService mappingService)
         {
             _invoiceRetrievalRepository = invoiceRetrievalRepository;
+            _mappingService = mappingService;
         }
 
         public IEnumerable<InvoiceEntity> GetInvoices()
@@ -24,6 +26,8 @@ namespace DistributedWarehouses.ApplicationServices
 
         public InvoiceDto GetInvoiceItems(Guid id)
         {
+            var invoice = _mappingService.Map<InvoiceDto>(GetInvoice(id));
+
             return _invoiceRetrievalRepository.GetInvoiceItems(id);
         }
 

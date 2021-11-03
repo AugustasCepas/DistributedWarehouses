@@ -9,6 +9,7 @@ using InvoiceEntity = DistributedWarehouses.Domain.Entities.InvoiceEntity;
 using InvoiceModel = DistributedWarehouses.Infrastructure.Models.Invoice;
 using InvoiceItemEntity = DistributedWarehouses.Domain.Entities.InvoiceItemEntity;
 using InvoiceItemModel = DistributedWarehouses.Infrastructure.Models.InvoiceItem;
+using AutoMapper.QueryableExtensions;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
 {
@@ -46,7 +47,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         /// </summary>
         /// <param name="invoiceGuid"></param>
         /// <returns></returns>
-        public IEnumerable<ItemInInvoiceInfoDto> GetInvoiceItems(Guid invoiceGuid)
+        public IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid)
         {
             var invoices = _distributedWarehousesContext.Invoices;
             var invoiceItems = _distributedWarehousesContext.InvoiceItems;
@@ -54,13 +55,14 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             var query = invoices
                 .GroupJoin(invoiceItems, invoice => invoice.Id, invoiceItem => invoiceItem.Invoice,
                     (invoice, invoiceItemGroup) => new {invoice, invoiceItemGroup})
-                .SelectMany(@t => @t.invoiceItemGroup.DefaultIfEmpty(), (@t, invoiceItem) => new {@t, invoiceItem})
-                .Where(@t => @t.invoiceItem.Invoice == invoiceGuid)
-                .Select(@t => new ItemInInvoiceInfoDto
+                .SelectMany(t => t.invoiceItemGroup.DefaultIfEmpty(), (t, invoiceItem) => new {t, invoiceItem})
+                .Where(t => t.invoiceItem.Invoice == invoiceGuid)
+                .ProjectTo<InvoiceItemEntity>()
+                .Select(t => new ItemInInvoiceInfoDto
                 {
-                    ItemId = @t.invoiceItem.Item,
-                    PurchasedQuantity = @t.invoiceItem.Quantity,
-                    WarehouseId = @t.invoiceItem.Warehouse
+                    ItemId = t.invoiceItem.Item,
+                    PurchasedQuantity = t.invoiceItem.Quantity,
+                    WarehouseId = t.invoiceItem.Warehouse
                 });
 
             return query.AsEnumerable();

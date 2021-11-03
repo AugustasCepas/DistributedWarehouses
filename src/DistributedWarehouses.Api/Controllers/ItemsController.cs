@@ -13,8 +13,6 @@ using DistributedWarehouses.Infrastructure.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace DistributedWarehouses.Api.Controllers
 {
     [Route("v1/[controller]")]
@@ -37,7 +35,6 @@ namespace DistributedWarehouses.Api.Controllers
         public IActionResult ReturnListOfAllSKUs()
         {
             var response = _itemService.GetItems();
-
             return Ok(response);
         }
 
@@ -50,16 +47,8 @@ namespace DistributedWarehouses.Api.Controllers
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
+        public async Task<IActionResult> ReturnInfoAboutOneSKU(string sku)
         {
-            var validationResult = await  _validator.ValidateAsync(sku);
-            if (!validationResult.IsValid)
-            {
-                return new ObjectResult(new ErrorResponse {Message = validationResult.Errors.First().ErrorMessage})
-                {
-                    StatusCode = int.Parse(validationResult.Errors.First().ErrorCode),
-                };
-            }
             var item = _itemService.GetItemInWarehousesInfo(sku);
             return Ok(item);
         }

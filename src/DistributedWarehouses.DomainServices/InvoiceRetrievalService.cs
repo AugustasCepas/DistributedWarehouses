@@ -24,15 +24,7 @@ namespace DistributedWarehouses.DomainServices
 
         public InvoiceDto GetInvoiceItems(Guid invoiceGuid)
         {
-            var item = _invoiceRepository.GetInvoice(invoiceGuid);
-            var result = new InvoiceDto
-            {
-                Id = item.Id,
-                CreatedAt = item.CreatedAt,
-                Items = _invoiceRepository.GetInvoiceItems(invoiceGuid)
-            };
-
-            return result;
+            return _invoiceRepository.GetInvoiceItems(invoiceGuid);
         }
 
         public InvoiceEntity GetInvoice(Guid id)

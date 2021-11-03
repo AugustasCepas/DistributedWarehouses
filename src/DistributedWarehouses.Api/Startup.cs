@@ -30,6 +30,7 @@ namespace DistributedWarehouses.Api
             services.AddControllers();
             services.AddInjections(Configuration);
             services.AddDatabases(Configuration);
+            services.AddMapping();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "DistributedWarehouses.Api", Version = "v1" });
