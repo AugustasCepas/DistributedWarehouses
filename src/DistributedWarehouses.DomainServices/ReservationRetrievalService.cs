@@ -46,6 +46,8 @@ namespace DistributedWarehouses.DomainServices
                          reservationId = reservation.Id;
                         _reservationRepository.AddReservation(reservation);
                     }
+                    // Add exception handling
+                    // Check if (Reservation.reservationId != null)  && if (!Reservation.reservationId.Contains(reservationInputDto.name))
                     else
                     {
                          reservationId = (Guid)reservationInputDto.Reservation;
@@ -74,7 +76,7 @@ namespace DistributedWarehouses.DomainServices
                     }
 
                     transaction.Commit();
-                    return new ReservationIdDto(reservationId);
+                    return reservationId;
                 }
                 catch 
                 {
