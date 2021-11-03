@@ -28,7 +28,7 @@ namespace DistributedWarehouses.Api.Controllers
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         public IActionResult RemoveSKUReservation(string itemSku, Guid warehouseId, Guid reservationId)
         {
-            var result = _reservationService.RemoveReservationItem(itemSku, warehouseId, reservationId);
+            var result = _reservationService.RemoveReservationItemAsync(itemSku, warehouseId, reservationId);
             return Ok(result);
         }
 
@@ -47,8 +47,8 @@ namespace DistributedWarehouses.Api.Controllers
         [ProducesResponseType(typeof(ReservationIdDto), StatusCodes.Status201Created)]
         public IActionResult AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
-            var result = _reservationService.AddReservation(reservationInputDto);
-            return Created(Url.Link("GetValueById", new { id = result.ReservationId }), result);
+            var result = _reservationService.AddReservationAsync(reservationInputDto);
+            return Created(Url.Link("GetValueById", new { id = result}), result);
         }
     }
 }

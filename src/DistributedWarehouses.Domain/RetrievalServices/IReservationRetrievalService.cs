@@ -10,14 +10,14 @@ namespace DistributedWarehouses.Domain.RetrievalServices
     {
         IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
-        Guid ReserveItemInWarehouse(ReservationInputDto reservationInputDto);
-        int RemoveReservation(Guid id);
+        Task<Guid> ReserveItemInWarehouseAsync(ReservationItemEntity reservationInputDto);
+        Task RemoveReservationAsync(Guid id);
 
 
         // Reservation Item
         IEnumerable<ReservationItemEntity> GetReservationItems();
-        ReservationItemEntity GetReservationItem(string item, Guid warehouse, Guid reservation);
-        Task<int> AddReservationItem(ReservationItemEntity reservationItem);
-        int RemoveReservationItem(string item, Guid warehouse, Guid reservation);
+        Task<ReservationItemEntity> GetReservationItemAsync(string item, Guid warehouse, Guid reservation);
+        Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem);
+        Task<int> RemoveReservationItemAsync(string item, Guid warehouse, Guid reservation);
     }
 }

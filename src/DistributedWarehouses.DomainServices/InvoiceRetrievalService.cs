@@ -22,7 +22,7 @@ namespace DistributedWarehouses.DomainServices
             return _invoiceRepository.GetInvoices();
         }
 
-        public InvoiceDto GetInvoiceItems(Guid invoiceGuid)
+        public IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid)
         {
             return _invoiceRepository.GetInvoiceItems(invoiceGuid);
         }

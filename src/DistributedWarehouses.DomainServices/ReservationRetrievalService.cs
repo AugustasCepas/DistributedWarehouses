@@ -14,12 +14,12 @@ namespace DistributedWarehouses.DomainServices
     public class ReservationRetrievalService : IReservationRetrievalService
     {
         private readonly IReservationRepository _reservationRepository;
-        private readonly IItemRepository _itemRepository;
+        private readonly IWarehouseRepository _warehouseRepository;
 
-        public ReservationRetrievalService(IReservationRepository reservationRepository, IItemRepository itemRepository)
+        public ReservationRetrievalService(IReservationRepository reservationRepository, IWarehouseRepository warehouseRepository)
         {
             _reservationRepository = reservationRepository;
-            _itemRepository = itemRepository;
+            _warehouseRepository = warehouseRepository;
         }
 
         public IEnumerable<ReservationEntity> GetReservations()
@@ -32,70 +32,54 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.GetReservation(id);
         }
 
-        public Guid ReserveItemInWarehouse(ReservationInputDto reservationInputDto)
+        public async Task<Guid> ReserveItemInWarehouseAsync(ReservationItemEntity reservationItem)
         {
             using (var transaction = _reservationRepository.GetTransaction())
             {
                 try
                 {
-                    Guid reservationId;
-
-                    if (reservationInputDto.Reservation == Guid.Empty)
-                    {
-                        var reservation = new ReservationEntity();
-                         reservationId = reservation.Id;
-                        _reservationRepository.AddReservation(reservation);
-                    }
-                    // Add exception handling
-                    // Check if (Reservation.reservationId != null)  && if (!Reservation.reservationId.Contains(reservationInputDto.name))
-                    else
-                    {
-                         reservationId = (Guid)reservationInputDto.Reservation;
-                    }
-
-
-                    var itemInWarehouses =
-                        _itemRepository.GetItemInWarehousesInfo(reservationInputDto.ItemSku)
-                            .OrderByDescending(i => i.StoredQuantity - i.ReservedQuantity);
-
-                    var itemsToReserve = reservationInputDto.Quantity;
-                    //TODO: Need to optimize
-                    foreach (var warehouse in itemInWarehouses)
-                    {
-                        if (itemsToReserve <= 0) break;
-
-                        var itemsInWarehouse = warehouse.StoredQuantity - warehouse.ReservedQuantity;
-
-                        _reservationRepository.AddReservationItem(reservationInputDto, reservationId, warehouse);
-                        itemsToReserve -= itemsInWarehouse;
-                    }
-
-                    if (itemsToReserve > 0)
-                    {
-                        throw new InsufficientAmountException(ErrorMessageResource.InsufficientAmount);
-                    }
-
-                    transaction.Commit();
-                    return reservationId;
+                    await AddReservationAsync(reservationItem.Reservation);
+                    await AddReservationItemsToWarehousesAsync(reservationItem);
                 }
                 catch 
                 {
-                    transaction.Rollback();
+                    await transaction.RollbackAsync();
                     throw;
                 }
             }
+            return reservationItem.Reservation;
         }
 
-        private ReservationEntity AddReservation()
+        private async Task<IEnumerable<(Guid,int)>> AddReservationItemsToWarehousesAsync(ReservationItemEntity reservation)
         {
-            var reservation = new ReservationEntity();
-            _reservationRepository.AddReservation(reservation);
-            return reservation;
+            var list = new List<(Guid,int)>();
+            var quantity = reservation.Quantity;
+            var (warehouse, freeSpace) = await _warehouseRepository.GetLargestWarehouseByFreeSpace(reservation.Item);
+            while (quantity > 0 && freeSpace>0)
+            {
+                reservation.Quantity = freeSpace >= quantity ? quantity : quantity - freeSpace;
+                await AddReservationItemAsync(reservation);
+                list.Add((warehouse, reservation.Quantity));
+                quantity -= reservation.Quantity;
+                (warehouse,freeSpace) = await _warehouseRepository.GetLargestWarehouseByFreeSpace(reservation.Item);
+            }
+
+            if (quantity>0)
+            {
+                throw new InsufficientStorageException();
+            }
+
+            return list;
         }
 
-        public int RemoveReservation(Guid id)
+        private Task<ReservationEntity> AddReservationAsync(Guid reservationId)
         {
-            return _reservationRepository.RemoveReservation(id);
+            return _reservationRepository.AddReservationAsync(new ReservationEntity(reservationId));
+        }
+
+        public async Task RemoveReservationAsync(Guid id)
+        {
+            await _reservationRepository.RemoveReservationAsync(id);
         }
 
         public IEnumerable<ReservationItemEntity> GetReservationItems()
@@ -103,23 +87,23 @@ namespace DistributedWarehouses.DomainServices
             return _reservationRepository.GetReservationItems();
         }
 
-        public ReservationItemEntity GetReservationItem(string item, Guid warehouse, Guid reservation)
+        public Task<ReservationItemEntity> GetReservationItemAsync(string item, Guid warehouse, Guid reservation)
         {
-            return _reservationRepository.GetReservationItem(item, warehouse, reservation);
+            return _reservationRepository.GetReservationItemAsync(item, warehouse, reservation);
         }
 
-        public Task<int> AddReservationItem(ReservationItemEntity reservationItem)
+        public async Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem)
         {
-            return _reservationRepository.AddReservationItem(reservationItem);
+            return await _reservationRepository.AddReservationItemAsync(reservationItem);
         }
 
-        public int RemoveReservationItem(string item, Guid warehouse, Guid reservation)
+        public async Task<int> RemoveReservationItemAsync(string item, Guid warehouse, Guid reservation)
         {
             var result = _reservationRepository.RemoveReservationItem(item, warehouse, reservation);
 
-            if (_reservationRepository.GetReservationItem(reservation) == null)
+            if ( await _reservationRepository.GetReservationItemAsync(reservation) == null)
             {
-                _reservationRepository.RemoveReservation(reservation);
+                await _reservationRepository.RemoveReservationAsync(reservation);
             }
 
             return result;

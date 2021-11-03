@@ -38,7 +38,7 @@ namespace DistributedWarehouses.Api.Controllers
         [ProducesResponseType(typeof(InvoiceDto), StatusCodes.Status200OK)]
         public IActionResult ReturnInfoAboutOneInvoice(Guid id)
         {
-            var item = _invoiceService.GetInvoiceItems(id);
+            var item = _invoiceService.GetInvoiceItemsAsync(id);
 
             return Ok(item);
         }

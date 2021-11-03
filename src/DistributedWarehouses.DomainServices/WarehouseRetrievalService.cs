@@ -99,7 +99,7 @@ namespace DistributedWarehouses.DomainServices
             if (dto.ReservationId != Guid.Empty && dto.ReservationId != null)
             {
                 ReservationItemEntity itemReservation;
-                if ((itemReservation = _reservationRepository.GetReservationItem(dto.SKU, dto.WarehouseId, (Guid)dto.ReservationId)) != null)
+                if ((itemReservation = await _reservationRepository.GetReservationItemAsync(dto.SKU, dto.WarehouseId, (Guid)dto.ReservationId)) != null)
                 {
                     _reservationRepository.RemoveReservationItem(itemReservation);
                 }

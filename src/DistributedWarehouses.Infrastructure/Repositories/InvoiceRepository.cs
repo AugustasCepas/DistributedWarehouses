@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
@@ -10,16 +11,19 @@ using InvoiceModel = DistributedWarehouses.Infrastructure.Models.Invoice;
 using InvoiceItemEntity = DistributedWarehouses.Domain.Entities.InvoiceItemEntity;
 using InvoiceItemModel = DistributedWarehouses.Infrastructure.Models.InvoiceItem;
 using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
 {
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly DistributedWarehousesContext _distributedWarehousesContext;
+        private readonly IMapper _mapper;
 
-        public InvoiceRepository(DistributedWarehousesContext distributedWarehousesContext)
+        public InvoiceRepository(DistributedWarehousesContext distributedWarehousesContext, IMapper mapper)
         {
             _distributedWarehousesContext = distributedWarehousesContext;
+            _mapper = mapper;
         }
 
         public IEnumerable<InvoiceEntity> GetInvoices()
@@ -57,15 +61,13 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                     (invoice, invoiceItemGroup) => new {invoice, invoiceItemGroup})
                 .SelectMany(t => t.invoiceItemGroup.DefaultIfEmpty(), (t, invoiceItem) => new {t, invoiceItem})
                 .Where(t => t.invoiceItem.Invoice == invoiceGuid)
-                .ProjectTo<InvoiceItemEntity>()
-                .Select(t => new ItemInInvoiceInfoDto
+                .Select(t => new 
                 {
-                    ItemId = t.invoiceItem.Item,
-                    PurchasedQuantity = t.invoiceItem.Quantity,
-                    WarehouseId = t.invoiceItem.Warehouse
+                    t.invoiceItem.Item,
+                    t.invoiceItem.Quantity,
+                    t.invoiceItem.Warehouse
                 });
-
-            return query.AsEnumerable();
+            return _mapper.ProjectTo<InvoiceItemEntity>(query).AsEnumerable();
         }
 
         public Task<int> AddInvoice(InvoiceEntity invoice)
@@ -124,6 +126,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             _distributedWarehousesContext.InvoiceItems.Remove(
                 await _distributedWarehousesContext.FindAsync<InvoiceItemModel>(item, warehouse, invoice));
             return await _distributedWarehousesContext.SaveChangesAsync();
+        }
+
+        public Task<bool> ExistsAsync<T>(T id)
+        {
+            return _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
         }
     }
 }

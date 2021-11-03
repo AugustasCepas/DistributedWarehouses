@@ -6,58 +6,57 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Exceptions;
+using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.RetrievalServices;
 using DistributedWarehouses.Domain.Services;
+using DistributedWarehouses.Domain.Validators;
 using DistributedWarehouses.Dto;
-using FluentValidation;
 
 namespace DistributedWarehouses.ApplicationServices
 {
     public class ItemService : IItemService
     {
-        private readonly IItemRetrievalService _itemRetrievalService;
-        private readonly IValidator<string> _validator;
+        private readonly IItemRepository _itemRepository;
+        private readonly IValidator<(bool, string), IItemRepository> _skuValidator;
+        private readonly IValidator<ItemEntity, IItemRepository> _itemValidator;
+        private readonly IMappingService _mappingService;
 
-        public ItemService(IItemRetrievalService itemRetrievalService, IValidator<string> validator)
+        public ItemService(IItemRepository itemRepository, IValidator<(bool, string), IItemRepository> skuValidator,
+            IValidator<ItemEntity, IItemRepository> itemValidator, IMappingService mappingService)
         {
-            _itemRetrievalService = itemRetrievalService;
-            _validator = validator;
+            _itemRepository = itemRepository;
+            _skuValidator = skuValidator;
+            _itemValidator = itemValidator;
+            _mappingService = mappingService;
         }
 
         public IEnumerable<ItemEntity> GetItems()
         {
-            var result = _itemRetrievalService.GetItems();
-
+            var result = _itemRepository.GetItems();
             return result;
         }
 
-        public async Task<ItemDto> GetItemInWarehousesInfo(string sku)
+        public async Task<ItemDto> GetItemInWarehousesInfoAsync(string sku)
         {
-            var validationResult = await _validator.ValidateAsync(sku);
-            if (!validationResult.IsValid)
-            {
-                throw new BaseException(validationResult.Errors.First().ErrorMessage, int.Parse(validationResult.Errors.First().ErrorCode));
-            }
-            var result = _itemRetrievalService.GetItemInWarehousesInfo(sku);
-
-            return result;
+            await _skuValidator.ValidateAsync((false, sku));
+            var item = _mappingService.Map<ItemDto>(await _itemRepository.GetItemAsync(sku));
+            item.InWarehouses =
+                _mappingService.Map<IEnumerable<ItemInWarehousesInfoDto>>(_itemRepository.GetItemInWarehousesInfo(sku));
+            return item;
         }
 
-        public Task<int> AddItem(ItemEntity item)
+        public async Task<ItemEntity> AddItemAsync(ItemEntity item)
         {
-            var result = _itemRetrievalService.AddItem(item);
-
-            return result;
+            await _skuValidator.ValidateAsync((true, item.SKU));
+            await _itemValidator.ValidateAsync(item);
+            var result = await _itemRepository.AddItemAsync(item);
+            return result == 1 ? item : null;
         }
 
-        public Task<int> RemoveItem(string sku)
+        public async Task RemoveItemAsync(string sku)
         {
-            var result = _itemRetrievalService.RemoveItem(sku);
-
-            return result;
+            await _skuValidator.ValidateAsync((false, sku));
+            await _itemRepository.RemoveItemAsync(sku);
         }
-
-
-
     }
 }

@@ -7,23 +7,21 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DistributedWarehouses.Domain.Repositories
 {
-    public interface IReservationRepository
+    public interface IReservationRepository : IRepository
     {
         IDbContextTransaction GetTransaction();
         IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
-        int AddReservation(ReservationEntity reservation);
+        Task<ReservationEntity> AddReservationAsync(ReservationEntity reservation);
+        
+        Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem);
 
-        int AddReservationItem(ReservationInputDto reservationInputDto, Guid reservationId,
-            ItemInWarehousesInfoDto itemInWarehouses);
-
-        int RemoveReservation(Guid id);
+        Task RemoveReservationAsync(Guid id);
 
         // Reservation Item
         IEnumerable<ReservationItemEntity> GetReservationItems();
-        ReservationItemEntity GetReservationItem(string item, Guid warehouse, Guid reservation);
-        ReservationItemEntity GetReservationItem(Guid reservation);
-        Task<int> AddReservationItem(ReservationItemEntity reservationItemEntity);
+        Task<ReservationItemEntity> GetReservationItemAsync(string item, Guid warehouse, Guid reservation);
+        Task<ReservationItemEntity> GetReservationItemAsync(Guid reservation);
         int RemoveReservationItem(string item, Guid warehouse, Guid reservation);
         int RemoveReservationItem(ReservationItemEntity reservationItemEntity);
     }

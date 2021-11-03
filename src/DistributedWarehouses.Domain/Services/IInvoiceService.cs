@@ -9,8 +9,8 @@ namespace DistributedWarehouses.Domain.Services
     public interface IInvoiceService
     {
         IEnumerable<InvoiceEntity> GetInvoices();
-        InvoiceDto GetInvoiceItems(Guid id);
-        InvoiceEntity GetInvoice(Guid id);
+        Task<InvoiceDto> GetInvoiceItemsAsync(Guid id);
+        Task<InvoiceEntity> GetInvoice(Guid id);
         Task<int> AddInvoice(InvoiceEntity invoice);
         Task<int> RemoveInvoice(Guid id);
         IEnumerable<InvoiceItemEntity> GetInvoiceItems();

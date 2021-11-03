@@ -1,14 +1,9 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
-using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
-using DistributedWarehouses.Infrastructure.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 
@@ -19,12 +14,10 @@ namespace DistributedWarehouses.Api.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IItemService _itemService;
-        private readonly IValidator<string> _validator;
 
         public ItemsController(IItemService itemService, IValidator<string> validator)
         {
             _itemService = itemService;
-            _validator = validator;
         }
 
         // Return list of all SKUs
@@ -44,9 +37,9 @@ namespace DistributedWarehouses.Api.Controllers
         // GET: <ItemsController>/$SKU
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
+        public async Task<IActionResult> ReturnInfoAboutOneSKU(string sku)
         {
-            var item = await _itemService.GetItemInWarehousesInfo(sku);
+            var item = await _itemService.GetItemInWarehousesInfoAsync(sku);
             return Ok(item);
         }
     }

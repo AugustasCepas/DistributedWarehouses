@@ -10,10 +10,10 @@ namespace DistributedWarehouses.Domain.Services
     {
         // Task Functions
         IEnumerable<ItemEntity> GetItems();
-        Task<ItemDto> GetItemInWarehousesInfo(string sku);
+        Task<ItemDto> GetItemInWarehousesInfoAsync(string sku);
 
         // Other Functions
-        Task<int> AddItem(ItemEntity item);
-        Task<int> RemoveItem(string sku);
+        Task<ItemEntity> AddItemAsync(ItemEntity item);
+        Task RemoveItemAsync(string sku);
     }
 }

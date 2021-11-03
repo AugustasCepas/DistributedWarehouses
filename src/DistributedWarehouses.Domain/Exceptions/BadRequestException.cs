@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DistributedWarehouses.Domain.Exceptions
 {
-    class BadRequestException : BaseException
+    public class BadRequestException : BaseException
     {
         public BadRequestException(string message) : base(message)
         {

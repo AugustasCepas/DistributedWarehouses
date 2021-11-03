@@ -6,6 +6,7 @@ using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
+using Microsoft.EntityFrameworkCore;
 using WarehouseEntity = DistributedWarehouses.Domain.Entities.WarehouseEntity;
 using WarehouseModel = DistributedWarehouses.Infrastructure.Models.Warehouse;
 using WarehouseItemEntity = DistributedWarehouses.Domain.Entities.WarehouseItemEntity;
@@ -157,6 +158,31 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             _distributedWarehousesContext.WarehouseItems.Update(warehouseItem);
             return await _distributedWarehousesContext.SaveChangesAsync();
 
+        }
+
+        public Task<Tuple<Guid, int>> GetLargestWarehouseByFreeSpace(string sku)
+        {
+            var warehouseItems = _distributedWarehousesContext.WarehouseItems;
+            var reservationItems = _distributedWarehousesContext.ReservationItems;
+
+            var query = warehouseItems
+                .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
+                    reservationItem => new { reservationItem.Item, reservationItem.Warehouse },
+                    (warehouseItem, reservationItemGroup) => new { warehouseItem, reservationItemGroup })
+                .SelectMany(t => t.reservationItemGroup.DefaultIfEmpty(),
+                    (t, reservationItem) => new { t, reservationItem })
+                .Where(t => t.t.warehouseItem.Item == sku)
+                .GroupBy(t => new { t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity },
+                    t => t.reservationItem)
+                .Select(g =>
+                    new Tuple<Guid, int>(g.Key.Warehouse, g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)))
+                .OrderByDescending(w => w.Item2);
+            return query.FirstOrDefaultAsync();
+        }
+
+        public Task<bool> ExistsAsync<T>(T id)
+        {
+            return _distributedWarehousesContext.Warehouses.AnyAsync(w => w.Id.Equals(id));
         }
     }
 }

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
+using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.RetrievalServices;
 using DistributedWarehouses.Domain.Services;
+using DistributedWarehouses.Domain.Validators;
 using DistributedWarehouses.Dto;
 
 namespace DistributedWarehouses.ApplicationServices
@@ -12,11 +14,14 @@ namespace DistributedWarehouses.ApplicationServices
     {
         private readonly IInvoiceRetrievalService _invoiceRetrievalRepository;
         private readonly IMappingService _mappingService;
+        private readonly IValidator<(bool, Guid), IInvoiceRepository> _guidValidator;
 
-        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalRepository, IMappingService mappingService)
+        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalRepository, IMappingService mappingService, IValidator<
+            (bool, Guid), IInvoiceRepository> guidValidator)
         {
             _invoiceRetrievalRepository = invoiceRetrievalRepository;
             _mappingService = mappingService;
+            _guidValidator = guidValidator;
         }
 
         public IEnumerable<InvoiceEntity> GetInvoices()
@@ -24,15 +29,17 @@ namespace DistributedWarehouses.ApplicationServices
             return _invoiceRetrievalRepository.GetInvoices();
         }
 
-        public InvoiceDto GetInvoiceItems(Guid id)
+        public async Task<InvoiceDto> GetInvoiceItemsAsync(Guid id)
         {
-            var invoice = _mappingService.Map<InvoiceDto>(GetInvoice(id));
-
-            return _invoiceRetrievalRepository.GetInvoiceItems(id);
+            var invoice = _mappingService.Map<InvoiceDto>(await GetInvoice(id));
+            var invoiceItems = _invoiceRetrievalRepository.GetInvoiceItems(id);
+            invoice.Items = _mappingService.Map<IEnumerable<ItemInInvoiceInfoDto>>(invoiceItems);
+            return invoice;
         }
 
-        public InvoiceEntity GetInvoice(Guid id)
+        public async Task<InvoiceEntity> GetInvoice(Guid id)
         {
+            await _guidValidator.ValidateAsync((false, id));
             return _invoiceRetrievalRepository.GetInvoice(id);
         }
 
@@ -41,9 +48,10 @@ namespace DistributedWarehouses.ApplicationServices
             return _invoiceRetrievalRepository.AddInvoice(invoice);
         }
 
-        public Task<int> RemoveInvoice(Guid id)
+        public async Task<int> RemoveInvoice(Guid id)
         {
-            return _invoiceRetrievalRepository.RemoveInvoice(id);
+            await _guidValidator.ValidateAsync((false, id));
+            return await _invoiceRetrievalRepository.RemoveInvoice(id);
         }
 
         public IEnumerable<InvoiceItemEntity> GetInvoiceItems()

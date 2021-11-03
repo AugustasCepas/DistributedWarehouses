@@ -6,11 +6,11 @@ using DistributedWarehouses.Dto;
 
 namespace DistributedWarehouses.Domain.Repositories
 {
-    public interface IInvoiceRepository
+    public interface IInvoiceRepository : IRepository
     {
         IEnumerable<InvoiceEntity> GetInvoices();
         InvoiceEntity GetInvoice(Guid invoiceGuid);
-        IEnumerable<ItemInInvoiceInfoDto> GetInvoiceItems(Guid invoiceGuid);
+        IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid);
         Task<int> AddInvoice(InvoiceEntity invoice);
         Task<int> RemoveInvoice(Guid id);
 

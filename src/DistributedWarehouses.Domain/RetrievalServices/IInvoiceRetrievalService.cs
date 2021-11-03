@@ -9,7 +9,7 @@ namespace DistributedWarehouses.Domain.RetrievalServices
     public interface IInvoiceRetrievalService
     {
         IEnumerable<InvoiceEntity> GetInvoices();
-        InvoiceDto GetInvoiceItems(Guid invoiceGuid);
+        IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid);
         InvoiceEntity GetInvoice(Guid id);
         Task<int> AddInvoice(InvoiceEntity invoice);
         Task<int> RemoveInvoice(Guid id);

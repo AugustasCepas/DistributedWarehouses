@@ -2,7 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
+using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
@@ -14,19 +18,17 @@ namespace DistributedWarehouses.Infrastructure.Repositories
     public class ItemRepository : IItemRepository
     {
         private readonly DistributedWarehousesContext _distributedWarehousesContext;
+        private readonly IMapper _mapper;
 
-        public ItemRepository(DistributedWarehousesContext distributedWarehousesContext)
+        public ItemRepository(DistributedWarehousesContext distributedWarehousesContext, IMapper mappingService)
         {
             _distributedWarehousesContext = distributedWarehousesContext;
+            _mapper = mappingService;
         }
 
         public IEnumerable<ItemEntity> GetItems()
         {
-            return _distributedWarehousesContext.Items.Select(i => new ItemEntity
-            {
-                SKU = i.Sku,
-                Title = i.Title
-            }).AsEnumerable();
+            return _mapper.ProjectTo<ItemEntity>(_distributedWarehousesContext.Items).AsEnumerable();
         }
 
         /// <summary>
@@ -37,58 +39,44 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         /// </summary>
         /// <param name="sku"></param>
         /// <returns></returns>
-        public IEnumerable<ItemInWarehousesInfoDto> GetItemInWarehousesInfo(string sku)
+        public IEnumerable<Tuple<Guid, int, int>> GetItemInWarehousesInfo(string sku)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
 
             var query = warehouseItems
-                .GroupJoin(reservationItems, warehouseItem => new {warehouseItem.Item, warehouseItem.Warehouse},
-                    reservationItem => new {reservationItem.Item, reservationItem.Warehouse},
-                    (warehouseItem, reservationItemGroup) => new {warehouseItem, reservationItemGroup})
-                .SelectMany(@t => @t.reservationItemGroup.DefaultIfEmpty(),
-                    (@t, reservationItem) => new {@t, reservationItem})
-                .Where(@t => @t.@t.warehouseItem.Item == sku)
-                .GroupBy(@t => new {@t.@t.warehouseItem.Warehouse, WarehouseQuantity = @t.@t.warehouseItem.Quantity},
-                    @t => @t.reservationItem)
-                .Select(g => new ItemInWarehousesInfoDto
-                {
-                    WarehouseId = g.Key.Warehouse,
-                    StoredQuantity = g.Key.WarehouseQuantity,
-                    ReservedQuantity = g.Sum(ri => ri.Quantity)
-                });
-
+                .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
+                    reservationItem => new { reservationItem.Item, reservationItem.Warehouse },
+                    (warehouseItem, reservationItemGroup) => new { warehouseItem, reservationItemGroup })
+                .SelectMany(t => t.reservationItemGroup.DefaultIfEmpty(),
+                    (t, reservationItem) => new { t, reservationItem })
+                .Where(t => t.t.warehouseItem.Item == sku)
+                .GroupBy(t => new { t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity },
+                    t => t.reservationItem)
+                .Select(g =>
+                    new Tuple<Guid, int, int>(g.Key.Warehouse, g.Key.WarehouseQuantity, g.Sum(ri => ri.Quantity)));
             return query.AsEnumerable();
         }
 
-        public ItemEntity GetItem(string SKU)
+        public Task<ItemEntity> GetItemAsync(string SKU)
         {
-            return _distributedWarehousesContext.Items
-                .Where(i => i.Sku == SKU)
-                .Select(i => new ItemEntity
-                {
-                    SKU = i.Sku,
-                    Title = i.Title
-                }).FirstOrDefault();
+            return _mapper.ProjectTo<ItemEntity>(_distributedWarehousesContext.Items)
+                .FirstOrDefaultAsync(i => i.SKU == SKU);
         }
 
-        public Task<int> AddItem(ItemEntity item)
+        public Task<int> AddItemAsync(ItemEntity item)
         {
-            _distributedWarehousesContext.Items.Add(new ItemModel
-            {
-                Sku = item.SKU,
-                Title = item.Title
-            });
+            _distributedWarehousesContext.Items.Add(_mapper.Map<ItemModel>(item));
             return _distributedWarehousesContext.SaveChangesAsync();
         }
 
-        public async Task<int> RemoveItem(string sku)
+        public async Task<int> RemoveItemAsync(string sku)
         {
             _distributedWarehousesContext.Items.Remove(await _distributedWarehousesContext.FindAsync<ItemModel>(sku));
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-        public Task<bool> ExistsAsync(string sku)
+        public Task<bool> ExistsAsync<T>(T sku)
         {
             return _distributedWarehousesContext.Items.AnyAsync(i => i.Sku.Equals(sku));
         }
