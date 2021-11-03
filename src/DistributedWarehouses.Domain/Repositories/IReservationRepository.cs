@@ -14,7 +14,7 @@ namespace DistributedWarehouses.Domain.Repositories
         ReservationEntity GetReservation(Guid id);
         int AddReservation(ReservationEntity reservation);
 
-        int AddReservationItem(ReservationInputDto reservationInputDto, ReservationEntity reservation,
+        int AddReservationItem(ReservationInputDto reservationInputDto, Guid reservationId,
             ItemInWarehousesInfoDto itemInWarehouses);
 
         int RemoveReservation(Guid id);

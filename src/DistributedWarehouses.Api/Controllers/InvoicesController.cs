@@ -34,11 +34,11 @@ namespace DistributedWarehouses.Api.Controllers
 
         // Return info about one Invoice
         // GET: <InvoicesController>/$invoiceGuid
-        [HttpGet("{invoiceGuid:guid}")]
+        [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(InvoiceDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoAboutOneInvoice(Guid invoiceGuid)
+        public IActionResult ReturnInfoAboutOneInvoice(Guid id)
         {
-            var item = _invoiceService.GetInvoiceItems(invoiceGuid);
+            var item = _invoiceService.GetInvoiceItems(id);
 
             return Ok(item);
         }

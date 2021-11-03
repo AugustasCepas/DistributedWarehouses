@@ -24,29 +24,30 @@ namespace DistributedWarehouses.Api.Controllers
 
         // Remove Reservation of SKU
         // DELETE api/<ReservationController>/{item}/{warehouse}/{reservation}
-        [HttpDelete("{item:regex(^[[a-zA-Z0-9]]*$)}/{warehouse:guid}/{reservation:guid}")]
+        [HttpDelete("{reservationId:guid}/items/{itemSku:regex(^[[a-zA-Z0-9]]*$)}/warehouses/{warehouseId:guid}/")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public IActionResult RemoveSKUReservation(string item, Guid warehouse, Guid reservation)
+        public IActionResult RemoveSKUReservation(string itemSku, Guid warehouseId, Guid reservationId)
         {
-            var result = _reservationService.RemoveReservationItem(item, warehouse, reservation);
+            var result = _reservationService.RemoveReservationItem(itemSku, warehouseId, reservationId);
             return Ok(result);
         }
 
-        // Return list of all Reservations
-        // GET: <ReservationsController>/reservations
-        [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<ReservationEntity>), StatusCodes.Status200OK)]
-        public IActionResult Get()
-        {
-            var response = _reservationService.GetReservations();
+        //// Return list of all Reservations
+        //// GET: <ReservationsController>/reservations
+        //[HttpGet]
+        //[ProducesResponseType(typeof(IEnumerable<ReservationEntity>), StatusCodes.Status200OK)]
+        //public IActionResult GetReservations()
+        //{
+        //    var response = _reservationService.GetReservations();
 
-            return Ok(response);
-        }
+        //    return Ok(response);
+        //}
 
-        // GET api/<ReservationsController>/5
+        //// GET api/<ReservationsController>/5
+        [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("{id:guid}", Name = "GetValueById")]
         [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
-        public IActionResult Get(Guid id)
+        public IActionResult GetReservation(Guid id)
         {
             var result = _reservationService.GetReservation(id);
             return Ok(result);
@@ -55,7 +56,7 @@ namespace DistributedWarehouses.Api.Controllers
         // POST api/<ReservationsController>
         [HttpPost]
         [ProducesResponseType(typeof(ReservationIdDto), StatusCodes.Status201Created)]
-        public IActionResult Post([FromBody] ReservationInputDto reservationInputDto)
+        public IActionResult AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
             var result = _reservationService.AddReservation(reservationInputDto);
             return Created(Url.Link("GetValueById", new { id = result.ReservationId }), result);

@@ -28,11 +28,11 @@ namespace DistributedWarehouses.Api.Controllers
         //How many goods are reserved
         //TODO: How much free space available
         // GET <WarehousesController>/{id}
-        [HttpGet("{warehouseGuid:guid}")]
+        [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoOfOneWarehouse(Guid warehouseGuid)
+        public IActionResult ReturnInfoOfOneWarehouse(Guid id)
         {
-            var result = _warehouseService.GetWarehouseInfo(warehouseGuid);
+            var result = _warehouseService.GetWarehouseInfo(id);
             return Ok(result);
         }
 
@@ -58,11 +58,11 @@ namespace DistributedWarehouses.Api.Controllers
 
         // POST <ItemsController>/items
         // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
-        [HttpPost("sell")]
+        [HttpPost("sell-item")]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SellItem(ItemSellDto dto)
+        public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
         {
-            var result = await _warehouseService.ItemSold(dto);
+            var result = await _warehouseService.SellWarehouseItem(dto);
             return Ok(result);
         }
         // // POST <WarehousesController>
