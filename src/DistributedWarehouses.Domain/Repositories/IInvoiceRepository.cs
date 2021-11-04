@@ -9,7 +9,7 @@ namespace DistributedWarehouses.Domain.Repositories
     public interface IInvoiceRepository : IRepository
     {
         IEnumerable<InvoiceEntity> GetInvoices();
-        Task<InvoiceEntity> GetInvoice(Guid invoiceGuid);
+        Task<InvoiceEntity> GetInvoiceAsync(Guid invoiceGuid);
         IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid);
         Task<int> AddInvoice(InvoiceEntity invoice);
         Task<int> RemoveInvoice(Guid id);

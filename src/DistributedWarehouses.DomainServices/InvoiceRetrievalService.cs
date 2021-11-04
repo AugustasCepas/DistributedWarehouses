@@ -29,7 +29,7 @@ namespace DistributedWarehouses.DomainServices
 
         public async Task<InvoiceEntity> GetInvoice(Guid id)
         {
-            return await _invoiceRepository.GetInvoice(id);
+            return await _invoiceRepository.GetInvoiceAsync(id);
         }
 
         public Task<int> AddInvoice(InvoiceEntity invoice)

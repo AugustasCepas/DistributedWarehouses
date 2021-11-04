@@ -31,7 +31,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices).AsEnumerable();
         }
 
-        public Task<InvoiceEntity> GetInvoice(Guid invoiceGuid)
+        public Task<InvoiceEntity> GetInvoiceAsync(Guid invoiceGuid)
         {
             return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices)
                 .FirstOrDefaultAsync(i => i.Id == invoiceGuid);

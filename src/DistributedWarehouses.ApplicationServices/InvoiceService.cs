@@ -31,15 +31,14 @@ namespace DistributedWarehouses.ApplicationServices
 
         public async Task<InvoiceDto> GetInvoiceItemsAsync(Guid id)
         {
-            var invoice = _mappingService.Map<InvoiceDto>(await GetInvoice(id));
+            var invoice = _mappingService.Map<InvoiceDto>(await GetInvoiceAsync(id));
             var invoiceItems = _invoiceRetrievalService.GetInvoiceItems(id);
             invoice.Items = _mappingService.Map<IEnumerable<ItemInInvoiceInfoDto>>(invoiceItems);
             return invoice;
         }
 
-        public async Task<InvoiceEntity> GetInvoice(Guid id)
+        public async Task<InvoiceEntity> GetInvoiceAsync(Guid id)
         {
-            // await _invoiceRetrievalService.ExistsAsync(id);
             await _guidValidator.ValidateAsync(id, false);
             return await _invoiceRetrievalService.GetInvoice(id);
         }
