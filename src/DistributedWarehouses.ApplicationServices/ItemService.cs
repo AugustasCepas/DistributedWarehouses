@@ -41,7 +41,8 @@ namespace DistributedWarehouses.ApplicationServices
             await _skuValidator.ValidateAsync(sku, false);
             var item = _mappingService.Map<ItemDto>(await _itemRepository.GetItemAsync(sku));
             item.InWarehouses =
-                _mappingService.Map<IEnumerable<ItemInWarehousesInfoDto>>(_itemRepository.GetItemInWarehousesInfo(sku));
+                _mappingService.Map<IEnumerable<ItemInWarehousesInfoDto>>
+                    (_itemRepository.GetItemInWarehousesInfo(sku));
             return item;
         }
 

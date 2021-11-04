@@ -22,6 +22,7 @@ namespace DistributedWarehouses.Infrastructure.Mapping
             CreateMap<ReservationItem, ReservationItemEntity>();
             CreateMap<Warehouse, WarehouseEntity>();
             CreateMap<WarehouseItem, WarehouseItemEntity>();
+
             CreateMap<Invoice, InvoiceDto>();
             CreateMap<InvoiceEntity, InvoiceDto>();
             CreateMap<InvoiceItem, ItemInInvoiceInfoDto>()
@@ -43,6 +44,11 @@ namespace DistributedWarehouses.Infrastructure.Mapping
                 .ForMember(destination => destination.WarehouseId, opts => opts.MapFrom(source => source.Item1))
                 .ForMember(destination => destination.StoredQuantity, opts => opts.MapFrom(source => source.Item2))
                 .ForMember(destination => destination.ReservedQuantity, opts => opts.MapFrom(source => source.Item3));
+            CreateMap<Tuple<string, int, Guid>, InvoiceItemEntity>()
+                .ForMember(destination => destination.Item, opts => opts.MapFrom(source => source.Item1))
+                .ForMember(destination => destination.Quantity, opts => opts.MapFrom(source => source.Item2))
+                .ForMember(destination => destination.Warehouse, opts => opts.MapFrom(source => source.Item3));
+
             CreateMap<ReservationInputDto, ReservationItemEntity>()
                 .ForMember(destination => destination.Item, opts => opts.MapFrom(source => source.ItemSku));
 
