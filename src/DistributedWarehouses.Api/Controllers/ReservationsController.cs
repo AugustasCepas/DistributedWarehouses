@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
@@ -45,9 +46,9 @@ namespace DistributedWarehouses.Api.Controllers
         // POST api/<ReservationsController>
         [HttpPost]
         [ProducesResponseType(typeof(ReservationIdDto), StatusCodes.Status201Created)]
-        public IActionResult AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
+        public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
-            var result = _reservationService.AddReservationAsync(reservationInputDto);
+            var result = await _reservationService.AddReservationAsync(reservationInputDto);
             return Created(Url.Link("GetValueById", new { id = result}), result);
         }
     }

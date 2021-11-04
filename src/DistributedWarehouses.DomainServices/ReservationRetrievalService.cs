@@ -40,6 +40,7 @@ namespace DistributedWarehouses.DomainServices
                 {
                     await AddReservationAsync(reservationItem.Reservation);
                     await AddReservationItemsToWarehousesAsync(reservationItem);
+                    await transaction.CommitAsync();
                 }
                 catch 
                 {

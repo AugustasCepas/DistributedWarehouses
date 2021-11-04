@@ -19,7 +19,9 @@ namespace DistributedWarehouses.Infrastructure.Mapping
             CreateMap<Item, ItemEntity>()
                 .ForMember(destination => destination.SKU, opts => opts.MapFrom(source => source.Sku));
             CreateMap<Reservation, ReservationEntity>();
+            CreateMap<ReservationEntity, Reservation>();
             CreateMap<ReservationItem, ReservationItemEntity>();
+            CreateMap<ReservationItemEntity, ReservationItem>();
             CreateMap<Warehouse, WarehouseEntity>();
             CreateMap<WarehouseItem, WarehouseItemEntity>();
 

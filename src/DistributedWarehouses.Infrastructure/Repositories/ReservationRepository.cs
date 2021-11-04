@@ -59,7 +59,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             await _distributedWarehousesContext.ReservationItems
                 .Upsert(_mapper.Map<ReservationItemModel>(reservationItem))
-                .On(ri => new { ri.Reservation, ri.Item, ri.Warehouse }).WhenMatched(ri => new ReservationItemModel
+                .On(ri => new { ri.Reservation, ri.Item, ri.Warehouse }).WhenMatched(ri => new ReservationItem
                 {
                     Quantity = reservationItem.Quantity
                 }).RunAsync(CancellationToken.None);
@@ -77,7 +77,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             var reservationToAdd = _mapper.Map<Reservation>(reservation);
             await _distributedWarehousesContext.Reservations.Upsert(reservationToAdd).On(r => r.Id)
-                .WhenMatched(r => reservationToAdd).RunAsync(CancellationToken.None);
+                .WhenMatched(r => new Reservation{CreatedAt = reservationToAdd.CreatedAt, ExpirationTime = reservationToAdd.ExpirationTime}).RunAsync(CancellationToken.None);
             return reservation;
         }
 

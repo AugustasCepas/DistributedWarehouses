@@ -66,9 +66,9 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 {
                     StoredQuantity = g.Sum(wi => wi.StoredQuantity),
                     ReservedQuantity = g.Sum(wi => wi.ReservedQuantity)
-                });
+                }).FirstOrDefault();
 
-            return query.FirstOrDefault();
+            return query;
         }
 
         public WarehouseEntity GetWarehouse(Guid id)
@@ -175,8 +175,8 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 .GroupBy(t => new { t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity },
                     t => t.reservationItem)
                 .Select(g =>
-                    new Tuple<Guid, int>(g.Key.Warehouse, g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)))
-                .OrderByDescending(w => w.Item2);
+                    new Tuple<Guid, int>(g.Key.Warehouse, g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)));
+                // .OrderByDescending(w => w.Item2);
             return query.FirstOrDefaultAsync();
         }
 
