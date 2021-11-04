@@ -28,22 +28,13 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         public IEnumerable<InvoiceEntity> GetInvoices()
         {
-            return _distributedWarehousesContext.Invoices.Select(i => new InvoiceEntity
-            {
-                Id = i.Id,
-                CreatedAt = i.CreatedAt
-            }).AsEnumerable();
+            return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices).AsEnumerable();
         }
 
-        public InvoiceEntity GetInvoice(Guid invoiceGuid)
+        public Task<InvoiceEntity> GetInvoice(Guid invoiceGuid)
         {
-            return _distributedWarehousesContext.Invoices
-                .Where(i => i.Id == invoiceGuid)
-                .Select(i => new InvoiceEntity
-                {
-                    Id = i.Id,
-                    CreatedAt = i.CreatedAt
-                }).FirstOrDefault();
+            return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices)
+                .FirstOrDefaultAsync(i => i.Id == invoiceGuid);
         }
 
         /// <summary>
@@ -61,12 +52,9 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                     (invoice, invoiceItemGroup) => new {invoice, invoiceItemGroup})
                 .SelectMany(t => t.invoiceItemGroup.DefaultIfEmpty(), (t, invoiceItem) => new {t, invoiceItem})
                 .Where(t => t.invoiceItem.Invoice == invoiceGuid)
-                .Select(t => new 
-                {
-                    t.invoiceItem.Item,
-                    t.invoiceItem.Quantity,
-                    t.invoiceItem.Warehouse
-                });
+                .Select(t =>
+                    new Tuple<string, int, Guid>(t.invoiceItem.Item, t.invoiceItem.Quantity, t.invoiceItem.Warehouse));
+
             return _mapper.ProjectTo<InvoiceItemEntity>(query).AsEnumerable();
         }
 

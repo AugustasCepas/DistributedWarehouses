@@ -16,7 +16,8 @@ namespace DistributedWarehouses.ApplicationServices
         private readonly IMappingService _mappingService;
         private readonly IValidator<Guid, IInvoiceRepository> _guidValidator;
 
-        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalService, IMappingService mappingService, IValidator<Guid, IInvoiceRepository> guidValidator)
+        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalService, IMappingService mappingService,
+            IValidator<Guid, IInvoiceRepository> guidValidator)
         {
             _invoiceRetrievalService = invoiceRetrievalService;
             _mappingService = mappingService;
@@ -40,7 +41,7 @@ namespace DistributedWarehouses.ApplicationServices
         {
             // await _invoiceRetrievalService.ExistsAsync(id);
             await _guidValidator.ValidateAsync(id, false);
-            return _invoiceRetrievalService.GetInvoice(id);
+            return await _invoiceRetrievalService.GetInvoice(id);
         }
 
         public Task<int> AddInvoice(InvoiceEntity invoice)

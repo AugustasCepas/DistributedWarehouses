@@ -10,7 +10,7 @@ namespace DistributedWarehouses.Domain.RetrievalServices
     {
         IEnumerable<InvoiceEntity> GetInvoices();
         IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid);
-        InvoiceEntity GetInvoice(Guid id);
+        Task<InvoiceEntity> GetInvoice(Guid id);
         Task<int> AddInvoice(InvoiceEntity invoice);
         Task<int> RemoveInvoice(Guid id);
         
