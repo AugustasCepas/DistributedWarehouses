@@ -32,6 +32,7 @@ namespace DistributedWarehouses.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+                // .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
             services.AddInjections(Configuration);
             services.AddDatabases(Configuration);
             services.AddMapping();

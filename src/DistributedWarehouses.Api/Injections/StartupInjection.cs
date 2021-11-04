@@ -38,6 +38,7 @@ namespace DistributedWarehouses.Api.Injections
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IReservationService, ReservationService>();
             services.AddScoped<IInvoiceService, InvoiceService>();
+            services.AddScoped<IRepositoryProvider, RepositoryProvider>();
         }
 
         private static void AddRetrievalServices(this IServiceCollection services)
@@ -49,33 +50,24 @@ namespace DistributedWarehouses.Api.Injections
 
         private static void AddValidators(this IServiceCollection services)
         {
-            services.AddScoped<IValidator<(bool, string)>, SkuValidator>();
-            services.AddScoped<Domain.Validators.IValidator<(bool, string), IItemRepository>>(provider =>
-                new Validator<(bool, string), IItemRepository>(provider.GetRequiredService<IValidator<(bool, string)>>()));
+            services.AddScoped<IValidator<string>, SkuValidator>();
+            services.AddScoped<Domain.Validators.IValidator<string, IItemRepository>>(provider =>
+                new Validator<string, IItemRepository>(provider.GetRequiredService<IValidator<string>>(), provider.GetRequiredService<IRepositoryProvider>()));
 
-            services.AddScoped<IValidator<(bool, Guid)>, GuidValidator<IInvoiceRepository>>(provider =>
-                new GuidValidator<IInvoiceRepository>(provider.GetRequiredService<IInvoiceRepository>()));
-            services.AddScoped<IValidator<(bool, Guid)>, GuidValidator<IReservationRepository>>(provider =>
-                new GuidValidator<IReservationRepository>(provider.GetRequiredService<IReservationRepository>()));
-            services.AddScoped<IValidator<(bool, Guid)>, GuidValidator<IWarehouseRepository>>(provider =>
-                new GuidValidator<IWarehouseRepository>(
-                    provider.GetRequiredService<IWarehouseRepository>()));
+            services.AddScoped<IValidator<Guid>, GuidValidator>();
 
-            services.AddScoped<Domain.Validators.IValidator<(bool, Guid), IInvoiceRepository>>(provider =>
-                new Validator<(bool, Guid), IInvoiceRepository>(provider.GetRequiredService<IValidator<(bool, Guid)>>()));
-            services.AddScoped<Domain.Validators.IValidator<(bool, Guid), IReservationRepository>>(provider =>
-                new Validator<(bool, Guid), IReservationRepository>(provider.GetRequiredService<IValidator<(bool, Guid)>>()));
-            services.AddScoped<Domain.Validators.IValidator<(bool, Guid), IWarehouseRepository>>(provider =>
-                new Validator<(bool, Guid), IWarehouseRepository>(provider.GetRequiredService<IValidator<(bool, Guid)>>()));
+            services.AddScoped<Domain.Validators.IValidator<Guid, IInvoiceRepository>, Validator<Guid, IInvoiceRepository>>();
+            services.AddScoped<Domain.Validators.IValidator<Guid, IReservationRepository>, Validator<Guid, IReservationRepository>>();
+            services.AddScoped<Domain.Validators.IValidator<Guid, IWarehouseRepository>, Validator<Guid, IWarehouseRepository>>();
 
 
             services.AddScoped<IValidator<InvoiceEntity>, InvoiceValidator>();
-            services.AddScoped<Domain.Validators.IValidator<InvoiceEntity, IRepository>>(provider =>
-                new Validator<InvoiceEntity, IRepository>(provider.GetRequiredService<IValidator<InvoiceEntity>>()));
+            services.AddScoped<Domain.Validators.IValidator<InvoiceEntity, IInvoiceRepository>>(provider =>
+                new Validator<InvoiceEntity, IInvoiceRepository>(provider.GetRequiredService<IValidator<InvoiceEntity>>(), provider.GetRequiredService<IRepositoryProvider>()));
 
             services.AddScoped<IValidator<ItemEntity>, ItemValidator>();
             services.AddScoped<Domain.Validators.IValidator<ItemEntity, IItemRepository>>(provider =>
-                new Validator<ItemEntity, IItemRepository>(provider.GetRequiredService<IValidator<ItemEntity>>()));
+                new Validator<ItemEntity, IItemRepository>(provider.GetRequiredService<IValidator<ItemEntity>>(), provider.GetRequiredService<IRepositoryProvider>()));
         }
     }
 }

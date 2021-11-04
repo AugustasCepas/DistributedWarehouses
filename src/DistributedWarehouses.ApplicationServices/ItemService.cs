@@ -17,11 +17,11 @@ namespace DistributedWarehouses.ApplicationServices
     public class ItemService : IItemService
     {
         private readonly IItemRepository _itemRepository;
-        private readonly IValidator<(bool, string), IItemRepository> _skuValidator;
+        private readonly IValidator<string, IItemRepository> _skuValidator;
         private readonly IValidator<ItemEntity, IItemRepository> _itemValidator;
         private readonly IMappingService _mappingService;
 
-        public ItemService(IItemRepository itemRepository, IValidator<(bool, string), IItemRepository> skuValidator,
+        public ItemService(IItemRepository itemRepository, IValidator<string, IItemRepository> skuValidator,
             IValidator<ItemEntity, IItemRepository> itemValidator, IMappingService mappingService)
         {
             _itemRepository = itemRepository;
@@ -38,7 +38,7 @@ namespace DistributedWarehouses.ApplicationServices
 
         public async Task<ItemDto> GetItemInWarehousesInfoAsync(string sku)
         {
-            await _skuValidator.ValidateAsync((false, sku));
+            await _skuValidator.ValidateAsync(sku, false);
             var item = _mappingService.Map<ItemDto>(await _itemRepository.GetItemAsync(sku));
             item.InWarehouses =
                 _mappingService.Map<IEnumerable<ItemInWarehousesInfoDto>>(_itemRepository.GetItemInWarehousesInfo(sku));
@@ -47,15 +47,15 @@ namespace DistributedWarehouses.ApplicationServices
 
         public async Task<ItemEntity> AddItemAsync(ItemEntity item)
         {
-            await _skuValidator.ValidateAsync((true, item.SKU));
-            await _itemValidator.ValidateAsync(item);
+            await _skuValidator.ValidateAsync(item.SKU, true);
+            await _itemValidator.ValidateAsync(item, true);
             var result = await _itemRepository.AddItemAsync(item);
             return result == 1 ? item : null;
         }
 
         public async Task RemoveItemAsync(string sku)
         {
-            await _skuValidator.ValidateAsync((false, sku));
+            await _skuValidator.ValidateAsync(sku, false);
             await _itemRepository.RemoveItemAsync(sku);
         }
     }

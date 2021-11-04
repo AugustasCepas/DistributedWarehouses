@@ -20,6 +20,7 @@ namespace DistributedWarehouses.Api.Controllers
             var context = HttpContext.Features.Get<IExceptionHandlerFeature>();
             var exception = context.Error;
             var code = 500;
+            var stack = exception.StackTrace;
 
             if (exception is BaseException customException)
             {
