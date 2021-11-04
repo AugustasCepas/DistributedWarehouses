@@ -128,9 +128,9 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-        public Task<bool> ExistsAsync<T>(T id)
+        public async Task<bool> ExistsAsync<T>(T id)
         {
-            return _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
+            return await _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
         }
     }
 }

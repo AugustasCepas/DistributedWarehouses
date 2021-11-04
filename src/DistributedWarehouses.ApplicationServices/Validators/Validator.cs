@@ -14,12 +14,12 @@ namespace DistributedWarehouses.ApplicationServices.Validators
     public class Validator<T, TRepository> : Domain.Validators.IValidator<T, TRepository> where TRepository:IRepository
     {
         private readonly IValidator<T> _validator;
-        // private readonly IRepositoryProvider _repositoryProvider;
+        private readonly IRepositoryProvider _repositoryProvider;
 
         public Validator(IValidator<T> validator, IRepositoryProvider repositoryProvider)
         {
             _validator = validator;
-            // _repositoryProvider = repositoryProvider;
+            _repositoryProvider = repositoryProvider;
         }
         public async Task ValidateAsync(T param, bool isNew)
         {
@@ -28,20 +28,20 @@ namespace DistributedWarehouses.ApplicationServices.Validators
             {
                 throw new BaseException(validationResult.Errors.First().ErrorMessage, int.Parse(validationResult.Errors.First().ErrorCode));
             }
-            // await ValidateExistenceAsync(param, isNew);
+            await ValidateExistenceAsync(param, isNew);
         }
 
-        // private async Task ValidateExistenceAsync(T param, bool isNew)
-        // {
-        //     if (isNew && await _repositoryProvider.GetRepository<TRepository>().ExistsAsync(param))
-        //     {
-        //         throw new BadRequestException(string.Format(ErrorMessageResource.NotSupported, "id", "Unique"));
-        //     }
-        //
-        //     if (!isNew && !await _repositoryProvider.GetRepository<TRepository>().ExistsAsync(param))
-        //     {
-        //         throw new NotFoundException("id");
-        //     }
-        // }
+        private async Task ValidateExistenceAsync(T param, bool isNew)
+        {
+            if (isNew && await _repositoryProvider.GetRepository<TRepository>().ExistsAsync(param))
+            {
+                throw new BadRequestException(string.Format(ErrorMessageResource.NotSupported, "id", "Unique"));
+            }
+        
+            if (!isNew && !await _repositoryProvider.GetRepository<TRepository>().ExistsAsync(param))
+            {
+                throw new NotFoundException("id");
+            }
+        }
     }
 }

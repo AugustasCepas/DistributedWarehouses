@@ -38,6 +38,7 @@ namespace DistributedWarehouses.ApplicationServices
 
         public async Task<InvoiceEntity> GetInvoice(Guid id)
         {
+            // await _invoiceRetrievalService.ExistsAsync(id);
             await _guidValidator.ValidateAsync(id, false);
             return _invoiceRetrievalService.GetInvoice(id);
         }

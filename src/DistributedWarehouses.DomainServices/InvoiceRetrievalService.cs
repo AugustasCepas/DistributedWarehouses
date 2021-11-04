@@ -41,8 +41,7 @@ namespace DistributedWarehouses.DomainServices
         {
             return _invoiceRepository.RemoveInvoice(id);
         }
-
-
+        
         public IEnumerable<InvoiceItemEntity> GetInvoiceItems()
         {
             return _invoiceRepository.GetInvoiceItems();

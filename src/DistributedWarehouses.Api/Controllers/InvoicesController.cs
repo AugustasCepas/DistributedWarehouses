@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
@@ -36,9 +37,9 @@ namespace DistributedWarehouses.Api.Controllers
         // GET: <InvoicesController>/$invoiceGuid
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(InvoiceDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoAboutOneInvoice(Guid id)
+        public async Task<IActionResult> ReturnInfoAboutOneInvoice(Guid id)
         {
-            var item = _invoiceService.GetInvoiceItemsAsync(id);
+            var item = await _invoiceService.GetInvoiceItemsAsync(id);
 
             return Ok(item);
         }

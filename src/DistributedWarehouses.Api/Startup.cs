@@ -10,6 +10,7 @@ using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using DistributedWarehouses.Api.Injections;
 using DistributedWarehouses.Dto;
@@ -31,8 +32,9 @@ namespace DistributedWarehouses.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-                // .AddNewtonsoftJson(x => x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            services.AddControllers()
+                //.AddJsonOptions(o => { o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; });
+                .AddNewtonsoftJson();
             services.AddInjections(Configuration);
             services.AddDatabases(Configuration);
             services.AddMapping();
