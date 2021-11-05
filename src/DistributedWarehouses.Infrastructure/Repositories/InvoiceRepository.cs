@@ -166,5 +166,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
+
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+            await AddInvoiceItem(entity as InvoiceItemEntity);
+        }
     }
 }

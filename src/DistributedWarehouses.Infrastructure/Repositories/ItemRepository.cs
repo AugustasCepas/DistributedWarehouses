@@ -80,5 +80,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             return _distributedWarehousesContext.Items.AnyAsync(i => i.Sku.Equals(sku));
         }
+
+        public Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+            throw new NotImplementedException();
+        }
     }
 }

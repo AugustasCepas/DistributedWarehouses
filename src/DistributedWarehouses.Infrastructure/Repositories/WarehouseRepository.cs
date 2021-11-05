@@ -167,20 +167,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-        public Task<WarehouseItemEntity> GetLargestWarehouseByFreeItemsQuantity(string sku)
+        public Task<WarehouseItemEntity> GetLargestWarehouseByFreeItemsQuantityAsync(string sku)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
-
-            // var query = @"
-            // DECLARE @sku varchar(100) = {0};
-            // SELECT TOP 1 [w].[Warehouse], [w].[Quantity] - COALESCE(SUM([r].[Quantity]), 0) AS [Quantity]
-            // FROM [WarehouseItem] AS [w]
-            // LEFT JOIN [ReservationItem] AS [r] ON ([w].[Item] = [r].[Item]) AND ([w].[Warehouse] = [r].[Warehouse])
-            // WHERE [w].[Item] = @sku
-            // GROUP BY [w].[Warehouse], [w].[Quantity]
-            // ORDER BY [w].[Quantity] DESC
-            //     ";
 
             var query = warehouseItems
                 .GroupJoin(reservationItems, warehouseItem => new {warehouseItem.Item, warehouseItem.Warehouse},
@@ -195,11 +185,9 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                     new WarehouseItem
                     {
                         Warehouse = g.Key.Warehouse,
-                        Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)
-                    });
-
-            return _mapper.ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity)
-                .FirstOrDefaultAsync();
+                        Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)});
+            return _mapper
+                .ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity).FirstOrDefaultAsync();
         }
 
         public Task<bool> ExistsAsync<T>(T id)
@@ -229,13 +217,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                             Warehouse = g.Key.WarehouseId,
                             Quantity = g.Key.WarehouseCapacity - g.Key.WarehouseQuantity
                         }
-                    // new Tuple<Guid, int>(g.Key.WarehouseId, g.Key.WarehouseCapacity - g.Key.WarehouseQuantity)
                 );
 
 
             return _mapper.ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity)
                 .FirstOrDefaultAsync();
-            // return query.OrderByDescending(wi => wi.Item2).FirstOrDefaultAsync();
         }
 
         public Task<int> AddInvoiceItemsToWarehouseAsync(InvoiceItemEntity invoiceItem)
@@ -246,6 +232,9 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 {
                     Quantity = wiInDb.Quantity + wiNew.Quantity
                 }).RunAsync(CancellationToken.None);
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+            await AddWarehouseItem(entity as WarehouseItemEntity);
         }
     }
 }
