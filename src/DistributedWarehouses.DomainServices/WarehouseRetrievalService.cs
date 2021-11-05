@@ -61,12 +61,6 @@ namespace DistributedWarehouses.DomainServices
             return _warehouseRepository.RemoveWarehouse(id);
         }
 
-        //Warehouse Item
-        public IEnumerable<WarehouseItemEntity> GetWarehouseItems()
-        {
-            return _warehouseRepository.GetWarehouseItems();
-        }
-
         public WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse)
         {
             return _warehouseRepository.GetWarehouseItem(item, warehouse);

@@ -43,5 +43,15 @@ namespace DistributedWarehouses.Api.Controllers
 
             return Ok(item);
         }
+
+        // Return all goods within invoice
+        // POST: invoices/{id}
+        [HttpDelete("{id:guid}")]
+        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        public async Task<IActionResult> ReturnGoodsFromInvoice(Guid id)
+        {
+            var response = await _invoiceService.ReturnGoodsFromInvoice(id);
+            return Ok(response);
+        }
     }
 }

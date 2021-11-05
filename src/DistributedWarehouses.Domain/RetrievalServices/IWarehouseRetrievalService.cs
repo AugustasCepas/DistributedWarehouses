@@ -14,7 +14,7 @@ namespace DistributedWarehouses.Domain.RetrievalServices
         Task<int> RemoveWarehouse(Guid id);
 
         // Warehouse Item
-        IEnumerable<WarehouseItemEntity> GetWarehouseItems();
+        // IEnumerable<WarehouseItemEntity> GetWarehouseItems();
         WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse);
         Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> RemoveWarehouseItem(string item, Guid warehouse);

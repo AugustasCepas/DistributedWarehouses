@@ -35,7 +35,7 @@ namespace DistributedWarehouses.Test.IntegrationTests.Repositories
         [Fact]
         public void ExistingSku_GetLargestWarehouseByFreeItemsQuantity_ReturnsWarehouseItem()
         {
-            var sku = _warehouseRepository.GetWarehouseItems().First().Item;
+            var sku = _warehouseRepository.GetWarehouseItems(_warehouseRepository.GetWarehouses().First().Id).First().Item;
             var result = _warehouseRepository.GetLargestWarehouseByFreeItemsQuantity(sku);
             Assert.NotNull(result);
         }

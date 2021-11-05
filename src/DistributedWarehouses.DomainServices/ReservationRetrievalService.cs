@@ -55,16 +55,15 @@ namespace DistributedWarehouses.DomainServices
         {
             var list = new List<(Guid,int)>();
             var quantity = reservation.Quantity;
-            var (warehouse, freeSpace) = await GetWarehouseParams(reservation.Item);
-            reservation.Warehouse = warehouse;
-            while (quantity > 0 && freeSpace>0)
+            var (warehouse, freeItems) = await GetWarehouseParams(reservation.Item);
+            while (quantity > 0 && freeItems > 0)
             {
-                reservation.Quantity = freeSpace >= quantity ? quantity : freeSpace;
+                reservation.Warehouse = warehouse;
+                reservation.Quantity = freeItems >= quantity ? quantity : freeItems;
                 await AddReservationItemAsync(reservation);
                 list.Add((warehouse, reservation.Quantity));
                 quantity -= reservation.Quantity;
-                (warehouse, freeSpace) = await GetWarehouseParams(reservation.Item);
-                reservation.Warehouse = warehouse;
+                (warehouse, freeItems) = await GetWarehouseParams(reservation.Item);
             }
 
             if (quantity>0)
@@ -77,7 +76,7 @@ namespace DistributedWarehouses.DomainServices
 
         private async Task<(Guid, int)> GetWarehouseParams(string sku)
         {
-            var warehouseItem = _warehouseRepository.GetLargestWarehouseByFreeItemsQuantity(sku);
+            var warehouseItem = await _warehouseRepository.GetLargestWarehouseByFreeItemsQuantity(sku);
             return (warehouseItem.Warehouse, warehouseItem.Quantity);
         }
 

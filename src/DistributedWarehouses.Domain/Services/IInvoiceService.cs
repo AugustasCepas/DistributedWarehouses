@@ -16,6 +16,7 @@ namespace DistributedWarehouses.Domain.Services
         IEnumerable<InvoiceItemEntity> GetInvoiceItems();
         InvoiceItemEntity GetInvoiceItem(string item, Guid warehouse, Guid invoice);
         Task<int> AddInvoiceItem(InvoiceItemEntity invoiceItem);
-        public Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice);
+        Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice);
+        Task<int> ReturnGoodsFromInvoice(Guid id);
     }
 }

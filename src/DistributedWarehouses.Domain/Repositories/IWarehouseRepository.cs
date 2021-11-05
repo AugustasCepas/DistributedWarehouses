@@ -13,15 +13,16 @@ namespace DistributedWarehouses.Domain.Repositories
         public WarehouseEntity GetWarehouse(Guid id);
         public Task<int> AddWarehouse(WarehouseEntity warehouseEntity);
         public Task<int> RemoveWarehouse(Guid id);
-        
 
 
         // Warehouse Items
-        public IEnumerable<WarehouseItemEntity> GetWarehouseItems();
+        IEnumerable<WarehouseItemEntity> GetWarehouseItems(Guid id);
         WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse);
-        public Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
+        Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> RemoveWarehouseItem(string item, Guid warehouse);
         Task<int> UpdateWarehouseItemQuantity(string item, Guid warehouse, int quantity);
-        public WarehouseItemEntity GetLargestWarehouseByFreeItemsQuantity(string sku);
+        Task<WarehouseItemEntity> GetLargestWarehouseByFreeItemsQuantity(string sku);
+        Task<WarehouseItemEntity> GetWarehouseByFreeSpace();
+        Task<int> AddInvoiceItemsToWarehouseAsync(InvoiceItemEntity invoiceItem);
     }
 }

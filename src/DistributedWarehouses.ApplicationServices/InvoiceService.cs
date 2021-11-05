@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
@@ -74,6 +75,13 @@ namespace DistributedWarehouses.ApplicationServices
         public Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice)
         {
             return _invoiceRetrievalService.RemoveInvoiceItem(item, warehouse, invoice);
+        }
+
+
+        public async Task<int> ReturnGoodsFromInvoice(Guid id)
+        {
+            await _guidValidator.ValidateAsync(id, false);
+            return await _invoiceRetrievalService.ReturnInvoice(id);
         }
     }
 }

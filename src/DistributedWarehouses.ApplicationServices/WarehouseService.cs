@@ -45,13 +45,6 @@ namespace DistributedWarehouses.ApplicationServices
             return result;
         }
 
-        public IEnumerable<WarehouseItemEntity> GetWarehouseItems()
-        {
-            var result = _warehouseRetrievalService.GetWarehouseItems();
-
-            return result;
-        }
-
         public WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse)
         {
             return _warehouseRetrievalService.GetWarehouseItem(item, warehouse);
