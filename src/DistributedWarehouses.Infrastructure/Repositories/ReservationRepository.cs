@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
+using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
@@ -122,6 +123,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         public Task<bool> ExistsAsync<T>(T id)
         {
             return _distributedWarehousesContext.Reservations.AnyAsync(r => r.Id.Equals(id));
+        }
+
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+            await AddReservationItemAsync(entity as ReservationItemEntity);
         }
     }
 }

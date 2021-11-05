@@ -53,32 +53,8 @@ namespace DistributedWarehouses.DomainServices
 
         private async Task<IEnumerable<(Guid,int)>> AddReservationItemsToWarehousesAsync(ReservationItemEntity reservation)
         {
-            var list = new List<(Guid,int)>();
-            var quantity = reservation.Quantity;
-            var (warehouse, freeSpace) = await GetWarehouseParams(reservation.Item);
-            reservation.Warehouse = warehouse;
-            while (quantity > 0 && freeSpace>0)
-            {
-                reservation.Quantity = freeSpace >= quantity ? quantity : freeSpace;
-                await AddReservationItemAsync(reservation);
-                list.Add((warehouse, reservation.Quantity));
-                quantity -= reservation.Quantity;
-                (warehouse, freeSpace) = await GetWarehouseParams(reservation.Item);
-                reservation.Warehouse = warehouse;
-            }
-
-            if (quantity>0)
-            {
-                throw new InsufficientStorageException(quantity);
-            }
-
-            return list;
-        }
-
-        private async Task<(Guid, int)> GetWarehouseParams(string sku)
-        {
-            var warehouseItem = _warehouseRepository.GetLargestWarehouseByFreeItemsQuantity(sku);
-            return (warehouseItem.Warehouse, warehouseItem.Quantity);
+            var warehouses = (await new DistributionService(reservation, _warehouseRepository, _reservationRepository).Distribute());
+            return warehouses;
         }
 
         private Task<ReservationEntity> AddReservationAsync(Guid reservationId)

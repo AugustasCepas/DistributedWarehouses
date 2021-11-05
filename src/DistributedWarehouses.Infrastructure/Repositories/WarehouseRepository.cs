@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using DistributedWarehouses.Domain;
+using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
@@ -164,19 +165,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         }
 
-        public WarehouseItemEntity GetLargestWarehouseByFreeItemsQuantity(string sku)
+        public Task<WarehouseItemEntity> GetLargestWarehouseByFreeItemsQuantityAsync(string sku)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
-            // var query = @"
-            // DECLARE @sku varchar(100) = {0};
-            // SELECT TOP 1 [w].[Warehouse], [w].[Quantity] - COALESCE(SUM([r].[Quantity]), 0) AS [Quantity]
-            // FROM [WarehouseItem] AS [w]
-            // LEFT JOIN [ReservationItem] AS [r] ON ([w].[Item] = [r].[Item]) AND ([w].[Warehouse] = [r].[Warehouse])
-            // WHERE [w].[Item] = @sku
-            // GROUP BY [w].[Warehouse], [w].[Quantity]
-            // ORDER BY [w].[Quantity] DESC
-            //     ";
 
             var query = warehouseItems
                 .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
@@ -192,12 +184,17 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                         Warehouse = g.Key.Warehouse,
                         Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)});
             return _mapper
-                .ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity).FirstOrDefault();
+                .ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity).FirstOrDefaultAsync();
         }
 
         public Task<bool> ExistsAsync<T>(T id)
         {
             return _distributedWarehousesContext.Warehouses.AnyAsync(w => w.Id.Equals(id));
+        }
+
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+            await AddWarehouseItem(entity as WarehouseItemEntity);
         }
     }
 }

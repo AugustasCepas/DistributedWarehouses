@@ -11,6 +11,7 @@ using InvoiceModel = DistributedWarehouses.Infrastructure.Models.Invoice;
 using InvoiceItemEntity = DistributedWarehouses.Domain.Entities.InvoiceItemEntity;
 using InvoiceItemModel = DistributedWarehouses.Infrastructure.Models.InvoiceItem;
 using AutoMapper.QueryableExtensions;
+using DistributedWarehouses.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
@@ -120,5 +121,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             return await _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
         }
+
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
+        {
+
+            await AddInvoiceItem(entity as InvoiceItemEntity);
+;        }
     }
 }
