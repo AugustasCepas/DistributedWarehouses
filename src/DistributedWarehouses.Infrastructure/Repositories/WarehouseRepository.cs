@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using DistributedWarehouses.Domain;
 using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WarehouseEntity = DistributedWarehouses.Domain.Entities.WarehouseEntity;
 using WarehouseModel = DistributedWarehouses.Infrastructure.Models.Warehouse;
@@ -18,10 +20,12 @@ namespace DistributedWarehouses.Infrastructure.Repositories
     public class WarehouseRepository : IWarehouseRepository
     {
         private readonly DistributedWarehousesContext _distributedWarehousesContext;
+        private readonly IMapper _mapper;
 
-        public WarehouseRepository(DistributedWarehousesContext distributedWarehousesContext)
+        public WarehouseRepository(DistributedWarehousesContext distributedWarehousesContext, IMapper mapper)
         {
             _distributedWarehousesContext = distributedWarehousesContext;
+            _mapper = mapper;
         }
 
         public IEnumerable<WarehouseEntity> GetWarehouses()
@@ -160,10 +164,19 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         }
 
-        public Task<Tuple<Guid, int>> GetLargestWarehouseByFreeSpace(string sku)
+        public WarehouseItemEntity GetLargestWarehouseByFreeItemsQuantity(string sku)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
+            // var query = @"
+            // DECLARE @sku varchar(100) = {0};
+            // SELECT TOP 1 [w].[Warehouse], [w].[Quantity] - COALESCE(SUM([r].[Quantity]), 0) AS [Quantity]
+            // FROM [WarehouseItem] AS [w]
+            // LEFT JOIN [ReservationItem] AS [r] ON ([w].[Item] = [r].[Item]) AND ([w].[Warehouse] = [r].[Warehouse])
+            // WHERE [w].[Item] = @sku
+            // GROUP BY [w].[Warehouse], [w].[Quantity]
+            // ORDER BY [w].[Quantity] DESC
+            //     ";
 
             var query = warehouseItems
                 .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
@@ -175,9 +188,11 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 .GroupBy(t => new { t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity },
                     t => t.reservationItem)
                 .Select(g =>
-                    new Tuple<Guid, int>(g.Key.Warehouse, g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)));
-                // .OrderByDescending(w => w.Item2);
-            return query.FirstOrDefaultAsync();
+                    new WarehouseItem{
+                        Warehouse = g.Key.Warehouse,
+                        Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)});
+            return _mapper
+                .ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity).FirstOrDefault();
         }
 
         public Task<bool> ExistsAsync<T>(T id)

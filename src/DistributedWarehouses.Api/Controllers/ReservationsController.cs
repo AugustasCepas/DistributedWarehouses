@@ -49,7 +49,8 @@ namespace DistributedWarehouses.Api.Controllers
         public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
             var result = await _reservationService.AddReservationAsync(reservationInputDto);
-            return Created(Url.Link("GetValueById", new { id = result}), result);
+            var link = Url.Link("GetValueById", new { id = result.ReservationId });
+            return Created(link, result);
         }
     }
 }

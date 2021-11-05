@@ -22,6 +22,6 @@ namespace DistributedWarehouses.Domain.Repositories
         public Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> RemoveWarehouseItem(string item, Guid warehouse);
         Task<int> UpdateWarehouseItemQuantity(string item, Guid warehouse, int quantity);
-        public Task<Tuple<Guid, int>> GetLargestWarehouseByFreeSpace(string sku);
+        public WarehouseItemEntity GetLargestWarehouseByFreeItemsQuantity(string sku);
     }
 }
