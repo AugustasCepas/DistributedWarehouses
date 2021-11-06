@@ -32,13 +32,7 @@ namespace DistributedWarehouses.Test.IntegrationTests.Repositories
             Assert.True(result);
         }
 
-        [Fact]
-        public void ExistingSku_GetLargestWarehouseByFreeItemsQuantity_ReturnsWarehouseItem()
-        {
-            var sku = _warehouseRepository.GetWarehouseItems(_warehouseRepository.GetWarehouses().First().Id).First().Item;
-            var result = _warehouseRepository.GetLargestWarehouseByFreeItemsQuantity(sku);
-            Assert.NotNull(result);
-        }
+
 
     }
 }

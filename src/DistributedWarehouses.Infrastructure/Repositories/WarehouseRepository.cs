@@ -54,13 +54,13 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             var reservationItems = _distributedWarehousesContext.ReservationItems;
 
             var query = warehouseItems
-                .GroupJoin(reservationItems, warehouseItem => new {warehouseItem.Item, warehouseItem.Warehouse},
-                    reservationItem => new {reservationItem.Item, reservationItem.Warehouse},
-                    (warehouseItem, reservationItemGroup) => new {warehouseItem, reservationItemGroup})
+                .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
+                    reservationItem => new { reservationItem.Item, reservationItem.Warehouse },
+                    (warehouseItem, reservationItemGroup) => new { warehouseItem, reservationItemGroup })
                 .SelectMany(t => t.reservationItemGroup.DefaultIfEmpty(),
-                    (t, reservationItem) => new {t, reservationItem})
+                    (t, reservationItem) => new { t, reservationItem })
                 .Where(t => t.t.warehouseItem.Warehouse == id)
-                .GroupBy(t => new {t.t.warehouseItem.Item, WarehouseQuantity = t.t.warehouseItem.Quantity},
+                .GroupBy(t => new { t.t.warehouseItem.Item, WarehouseQuantity = t.t.warehouseItem.Quantity },
                     t => t.reservationItem)
                 .Select(g => new
                 {
@@ -167,25 +167,61 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
+        public Task<WarehouseEntity> GetWarehouseByItem(string sku, string property)
+        {
+            var warehouses = _distributedWarehousesContext.Warehouses;
+            var warehouseItems = _distributedWarehousesContext.WarehouseItems;
+            var reservationItems = _distributedWarehousesContext.ReservationItems;
+            var query = (warehouses
+                .Join(warehouseItems, warehouse => new { Id = warehouse.Id },
+                    warehouseItem => new { Id = warehouseItem.Warehouse },
+                    (warehouse, warehouseItem) => new { warehouse, warehouseItem })
+                .GroupJoin(warehouseItems, t => new { Id = t.warehouse.Id },
+                    allWarehouseItem => new { Id = allWarehouseItem.Warehouse }, (t, awis) => new { t, awis })
+                .SelectMany(t => t.awis.DefaultIfEmpty(), (t, awi) => new { t, awi })
+                .GroupJoin(reservationItems,
+                    t => new { Id = t.t.t.warehouse.Id, Item = t.t.t.warehouseItem.Item },
+                    reservationItem => new { Id = reservationItem.Warehouse, Item = reservationItem.Item },
+                    (t, rwis) => new { t, rwis })
+                .SelectMany(t => t.rwis.DefaultIfEmpty(), (t, rwi) => new { t, rwi })
+                .Where(t => t.t.t.t.t.warehouseItem.Item == sku)
+                .GroupBy(t => new { t.t.t.t.t.warehouse.Id, t.t.t.t.t.warehouse.Capacity })
+                .Select(g =>
+                    new WarehouseEntity
+                    {
+                        Id = g.Key.Id,
+                        Capacity = g.Key.Capacity,
+                        FreeQuantity = g.Key.Capacity - g.Sum(w => w.t.t.awi.Quantity),
+                        StoredItemQuantity = g.Sum(g => g.t.t.t.t.warehouseItem.Quantity),
+                        AvailableItemQuantity =
+                            g.Sum(g => g.t.t.t.t.warehouseItem.Quantity) - g.Sum(g => g.rwi.Quantity)
+                    }));
+
+            return _mapper.ProjectTo<WarehouseEntity>(query).OrderByDescending(w => w.GetType().GetProperty(property))
+                .FirstOrDefaultAsync();
+
+        }
+
         public Task<WarehouseItemEntity> GetLargestWarehouseByFreeItemsQuantityAsync(string sku)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
 
             var query = warehouseItems
-                .GroupJoin(reservationItems, warehouseItem => new {warehouseItem.Item, warehouseItem.Warehouse},
-                    reservationItem => new {reservationItem.Item, reservationItem.Warehouse},
-                    (warehouseItem, reservationItemGroup) => new {warehouseItem, reservationItemGroup})
+                .GroupJoin(reservationItems, warehouseItem => new { warehouseItem.Item, warehouseItem.Warehouse },
+                    reservationItem => new { reservationItem.Item, reservationItem.Warehouse },
+                    (warehouseItem, reservationItemGroup) => new { warehouseItem, reservationItemGroup })
                 .SelectMany(t => t.reservationItemGroup.DefaultIfEmpty(),
-                    (t, reservationItem) => new {t, reservationItem})
+                    (t, reservationItem) => new { t, reservationItem })
                 .Where(t => t.t.warehouseItem.Item == sku)
-                .GroupBy(t => new {t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity},
+                .GroupBy(t => new { t.t.warehouseItem.Warehouse, WarehouseQuantity = t.t.warehouseItem.Quantity },
                     t => t.reservationItem)
                 .Select(g =>
                     new WarehouseItem
                     {
                         Warehouse = g.Key.Warehouse,
-                        Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)});
+                        Quantity = g.Key.WarehouseQuantity - g.Sum(ri => ri.Quantity)
+                    });
             return _mapper
                 .ProjectTo<WarehouseItemEntity>(query).OrderByDescending(wi => wi.Quantity).FirstOrDefaultAsync();
         }
@@ -202,21 +238,21 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
             var query = warehouseItems
                 .GroupJoin(warehouses, warehouseItem => warehouseItem.Warehouse, warehouse => warehouse.Id,
-                    (warehouseItem, warehouseGroup) => new {warehouseItem, warehouseGroup})
-                .SelectMany(@t => @t.warehouseGroup.DefaultIfEmpty(), (@t, warehouse) => new {@t, warehouse})
+                    (warehouseItem, warehouseGroup) => new { warehouseItem, warehouseGroup })
+                .SelectMany(t => t.warehouseGroup.DefaultIfEmpty(), (t, warehouse) => new { t, warehouse })
                 .GroupBy(
-                    @t => new
+                    t => new
                     {
-                        WarehouseId = @t.@t.warehouseItem.Warehouse,
-                        WarehouseCapacity = @t.warehouse.Capacity,
-                        WarehouseQuantity = @t.@t.warehouseItem.Quantity
-                    }, @t => @t.warehouse)
+                        WarehouseId = t.t.warehouseItem.Warehouse,
+                        WarehouseCapacity = t.warehouse.Capacity,
+                        WarehouseQuantity = t.t.warehouseItem.Quantity
+                    }, t => t.warehouse)
                 .Select(g =>
-                        new WarehouseItem
-                        {
-                            Warehouse = g.Key.WarehouseId,
-                            Quantity = g.Key.WarehouseCapacity - g.Key.WarehouseQuantity
-                        }
+                    new WarehouseItem
+                    {
+                        Warehouse = g.Key.WarehouseId,
+                        Quantity = g.Key.WarehouseCapacity - g.Key.WarehouseQuantity
+                    }
                 );
 
 
@@ -232,6 +268,8 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 {
                     Quantity = wiInDb.Quantity + wiNew.Quantity
                 }).RunAsync(CancellationToken.None);
+        }
+
         public async Task Add<T>(T entity) where T : DistributableItemEntity
         {
             await AddWarehouseItem(entity as WarehouseItemEntity);

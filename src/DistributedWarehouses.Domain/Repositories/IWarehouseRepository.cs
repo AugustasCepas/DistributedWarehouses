@@ -13,6 +13,7 @@ namespace DistributedWarehouses.Domain.Repositories
         public WarehouseEntity GetWarehouse(Guid id);
         public Task<int> AddWarehouse(WarehouseEntity warehouseEntity);
         public Task<int> RemoveWarehouse(Guid id);
+        public Task<WarehouseEntity> GetWarehouseByItem(string sku, string property);
 
 
         // Warehouse Items

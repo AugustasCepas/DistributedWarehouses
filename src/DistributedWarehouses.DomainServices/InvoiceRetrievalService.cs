@@ -95,7 +95,6 @@ namespace DistributedWarehouses.DomainServices
                     var invoiceItems = _invoiceRepository.GetInvoiceItems(id).ToList();
 
                     await ReturnItemsToWarehouses(invoiceItems);
-                    await RemoveInvoiceItems(invoiceItems);
                     await RevertInvoice(id);
                     await transaction.CommitAsync();
 
@@ -109,28 +108,12 @@ namespace DistributedWarehouses.DomainServices
             }
         }
 
-        private async Task<int> ReturnItemsToWarehouses(List<InvoiceItemEntity> invoiceItems)
+        private async Task ReturnItemsToWarehouses(List<InvoiceItemEntity> invoiceItems)
         {
-            var differentItemsReturned = 0;
-
             foreach (var item in invoiceItems)
             {
-                var itemsToReturn = item.Quantity;
-                while (itemsToReturn > 0)
-                {
-                    var emptiestWarehouse = await _warehouseRepository.GetWarehouseByFreeSpace();
-                    var warehouseFreeSpace = emptiestWarehouse.Quantity;
-                    item.Warehouse = emptiestWarehouse.Warehouse;
-                    var itemsToWarehouse =
-                        warehouseFreeSpace > itemsToReturn ? itemsToReturn : warehouseFreeSpace;
-                    await _warehouseRepository.AddInvoiceItemsToWarehouseAsync(item);
-                    itemsToReturn -= itemsToWarehouse;
-                }
-
-                differentItemsReturned++;
+                await new DistributionService(item, _warehouseRepository, _invoiceRepository, nameof(WarehouseEntity.FreeQuantity)).Distribute();
             }
-
-            return differentItemsReturned;
         }
     }
 }

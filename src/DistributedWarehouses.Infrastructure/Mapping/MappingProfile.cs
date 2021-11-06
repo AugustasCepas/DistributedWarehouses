@@ -26,6 +26,7 @@ namespace DistributedWarehouses.Infrastructure.Mapping
             CreateMap<Warehouse, WarehouseEntity>();
             CreateMap<WarehouseItem, WarehouseItemEntity>();
             CreateMap<WarehouseItemEntity, WarehouseItem>();
+            CreateMap<WarehouseEntity, WarehouseEntity>();
             CreateMap<InvoiceItemEntity, WarehouseItem>();
             CreateMap<Invoice, InvoiceDto>();
             CreateMap<InvoiceEntity, InvoiceDto>();

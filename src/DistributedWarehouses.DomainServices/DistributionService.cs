@@ -14,13 +14,15 @@ namespace DistributedWarehouses.DomainServices
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IRepository _entityRepository;
         private readonly DistributableItemEntity _distributableItem;
+        private readonly string _sortBy;
         private List<(Guid, int)> _warehouseItems;
         private int _quantity;
         private Guid _warehouse;
         private int _availableQuantity;
 
-        public DistributionService(DistributableItemEntity distributableItem, IWarehouseRepository warehouseRepository, IRepository entityRepository)
+        public DistributionService(DistributableItemEntity distributableItem, IWarehouseRepository warehouseRepository, IRepository entityRepository, string sortBy)
         {
+            _sortBy = sortBy;
             _distributableItem = distributableItem;
             _warehouseItems = new List<(Guid, int)>();
             _quantity = distributableItem.Quantity;
@@ -49,9 +51,8 @@ namespace DistributedWarehouses.DomainServices
 
         private async Task<(Guid, int)> GetWarehouseParams()
         {
-            var warehouseItem =
-                await _warehouseRepository.GetLargestWarehouseByFreeItemsQuantityAsync(_distributableItem.Item);
-            return (warehouseItem.Warehouse, warehouseItem.Quantity);
+            var warehouseItem = await _warehouseRepository.GetWarehouseByItem(_distributableItem.Item, _sortBy);
+            return (warehouseItem.Id, (int)typeof(WarehouseEntity).GetProperty(_sortBy).GetValue(warehouseItem));
         }
 
         private async Task Add(int quantityToAdd)

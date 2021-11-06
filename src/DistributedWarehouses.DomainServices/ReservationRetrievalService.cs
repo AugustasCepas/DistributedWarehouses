@@ -53,7 +53,7 @@ namespace DistributedWarehouses.DomainServices
 
         private async Task<IEnumerable<(Guid,int)>> AddReservationItemsToWarehousesAsync(ReservationItemEntity reservation)
         {
-            var warehouses = (await new DistributionService(reservation, _warehouseRepository, _reservationRepository).Distribute());
+            var warehouses = await new DistributionService(reservation, _warehouseRepository, _reservationRepository, nameof(WarehouseEntity.AvailableItemQuantity)).Distribute();
             return warehouses;
         }
 
