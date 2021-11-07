@@ -24,11 +24,12 @@ namespace DistributedWarehouses.Api.Controllers
             _warehouseService = warehouseService;
         }
 
-        //Return info about one warehouse
-        //How many goods are stored
-        //How many goods are reserved
-        //TODO: How much free space available
-        // GET <WarehousesController>/{id}
+        /// How many goods are stored
+        /// How many goods are reserved
+        /// How much free space available
+        /// <summary>
+        /// 7) Return info about one warehouse
+        /// </summary>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnInfoOfOneWarehouse(Guid id)
@@ -37,8 +38,10 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        // Return list of all Warehouses
-        // GET: <WarehousesController>/warehouses
+        /// <summary>
+        /// 6) Return list of all Warehouses
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<WarehouseEntity>), StatusCodes.Status200OK)]
         public IActionResult ReturnListOfAllWarehouses()
@@ -48,7 +51,12 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(response);
         }
 
-        // POST <WarehouseItemsController>
+        // POST warehouses/
+        /// <summary>
+        /// 8) Add goods to warehouse
+        /// </summary>
+        /// <param name="warehouseItemEntity"></param>
+        /// <returns></returns>
         [HttpPost("{warehouseId}/")]
         [ProducesResponseType(typeof(WarehouseItemEntity), StatusCodes.Status200OK)]
         public async Task<IActionResult> AddWarehouseItem(Guid warehouseId, [BindRequired] string sku, [BindRequired] int quantity)

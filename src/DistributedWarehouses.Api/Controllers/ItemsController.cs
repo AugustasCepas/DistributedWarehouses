@@ -20,8 +20,9 @@ namespace DistributedWarehouses.Api.Controllers
             _itemService = itemService;
         }
 
-        // Return list of all SKUs
-        // GET: <ItemsController>
+        /// <summary>
+        /// 1) Return list of all SKUs
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ItemEntity>), StatusCodes.Status200OK)]
         public IActionResult ReturnListOfAllSKUs()
@@ -30,11 +31,9 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(response);
         }
 
-        // Return info about one SKU
-        // How many items left in each warehouseEntity
-        // How many items are reserved
-        // TODO: How many items are planned to be delivered soon
-        // GET: <ItemsController>/$SKU
+        /// <summary>
+        /// 2) Return info about one SKU
+        /// </summary>
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnInfoAboutOneSKU(string sku)

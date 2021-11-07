@@ -5,6 +5,8 @@ using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
+using DistributedWarehouses.Api.Swagger;
+using Swashbuckle.AspNetCore.Filters;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,8 +23,9 @@ namespace DistributedWarehouses.Api.Controllers
             _reservationService = reservationService;
         }
 
-        // Remove Reservation of SKU
-        // DELETE api/reservations
+        /// <summary>
+        /// 4) Remove Reservation of SKU
+        /// </summary>
         [HttpDelete("{id}/items/{sku}")]
         [ProducesResponseType(typeof(ReservationRemovedDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> RemoveSKUReservation(string sku, Guid id)
@@ -31,7 +34,19 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(result);
         }
 
-        //// GET api/<ReservationsController>/5
+        /// <summary>
+        /// 3) Reserve SKU
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(IdDto), StatusCodes.Status201Created)]
+        [SwaggerRequestExample(typeof(ReservationInputDto), typeof(ReservationInputDtoExample))]
+        public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
+        {
+            var result = await _reservationService.AddReservationAsync(reservationInputDto);
+            var link = Url.Link("GetValueById", new { id = result.Id });
+            return Created(link, result);
+        }
+
         [ApiExplorerSettings(IgnoreApi = true)]
         [HttpGet("{id:guid}", Name = "GetValueById")]
         [ProducesResponseType(typeof(WarehouseEntity), StatusCodes.Status200OK)]
@@ -39,16 +54,6 @@ namespace DistributedWarehouses.Api.Controllers
         {
             var result = _reservationService.GetReservation(id);
             return Ok(result);
-        }
-
-        // POST api/<ReservationsController>
-        [HttpPost]
-        [ProducesResponseType(typeof(IdDto), StatusCodes.Status201Created)]
-        public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
-        {
-            var result = await _reservationService.AddReservationAsync(reservationInputDto);
-            var link = Url.Link("GetValueById", new { id = result.Id });
-            return Created(link, result);
         }
     }
 }
