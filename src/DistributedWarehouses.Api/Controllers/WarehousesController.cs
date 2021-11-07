@@ -55,15 +55,5 @@ namespace DistributedWarehouses.Api.Controllers
             var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
             return Ok(result);
         }
-
-        // POST <ItemsController>/items
-        // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
-        [HttpPost("sell-item")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
-        {
-            var result = await _warehouseService.SellWarehouseItem(dto);
-            return Ok(result);
-        }
     }
 }

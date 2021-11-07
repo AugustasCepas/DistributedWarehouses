@@ -1,87 +1,156 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Domain.RetrievalServices;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Domain.Validators;
+using DistributedWarehouses.DomainServices;
 using DistributedWarehouses.Dto;
 
 namespace DistributedWarehouses.ApplicationServices
 {
     public class InvoiceService : IInvoiceService
     {
-        private readonly IInvoiceRetrievalService _invoiceRetrievalService;
         private readonly IMappingService _mappingService;
         private readonly IValidator<Guid, IInvoiceRepository> _guidValidator;
+        private readonly IValidator<ItemSellDto, IInvoiceRepository> _itemSellValidator;
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IReservationService _reservationService;
 
-        public InvoiceService(IInvoiceRetrievalService invoiceRetrievalService, IMappingService mappingService,
-            IValidator<Guid, IInvoiceRepository> guidValidator)
+        public InvoiceService(IMappingService mappingService,
+            IValidator<Guid, IInvoiceRepository> guidValidator, IInvoiceRepository invoiceRepository,
+            IWarehouseRepository warehouseRepository, IReservationService reservationService, IValidator<ItemSellDto, IInvoiceRepository> itemSellValidator)
         {
-            _invoiceRetrievalService = invoiceRetrievalService;
             _mappingService = mappingService;
             _guidValidator = guidValidator;
+            _invoiceRepository = invoiceRepository;
+            _warehouseRepository = warehouseRepository;
+            _reservationService = reservationService;
+            _itemSellValidator = itemSellValidator;
         }
 
         public IEnumerable<InvoiceEntity> GetInvoices()
         {
-            return _invoiceRetrievalService.GetInvoices();
+            return _invoiceRepository.GetInvoices();
         }
 
         public async Task<InvoiceDto> GetInvoiceItemsAsync(Guid id)
         {
             var invoice = _mappingService.Map<InvoiceDto>(await GetInvoiceAsync(id));
-            var invoiceItems = _invoiceRetrievalService.GetInvoiceItems(id);
+            var invoiceItems = _invoiceRepository.GetInvoiceItems(id);
             invoice.Items = _mappingService.Map<IEnumerable<ItemInInvoiceInfoDto>>(invoiceItems);
             return invoice;
         }
 
-        public async Task<InvoiceEntity> GetInvoiceAsync(Guid id)
+
+        public async Task<IdDto> SellItems(ItemSellDto dto)
         {
-            await _guidValidator.ValidateAsync(id, false);
-            return await _invoiceRetrievalService.GetInvoice(id);
+            await _itemSellValidator.ValidateAsync(dto, true);
+            using (var transaction = _invoiceRepository.GetTransaction())
+            {
+                try
+                {
+                    dto.InvoiceId = dto.InvoiceId ??= Guid.NewGuid();
+                    await AddInvoice((Guid)dto.InvoiceId);
+                    await AddInvoiceItemsAsync(dto);
+                    await transaction.CommitAsync();
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+
+            return new IdDto((Guid)dto.InvoiceId);
         }
-
-        public Task<int> AddInvoice(InvoiceEntity invoice)
-        {
-            _guidValidator.ValidateAsync(invoice.Id, true);
-            return _invoiceRetrievalService.AddInvoice(invoice);
-        }
-
-        public async Task<int> RemoveInvoice(Guid id)
-        {
-            await _guidValidator.ValidateAsync(id, false);
-            return await _invoiceRetrievalService.RemoveInvoice(id);
-        }
-
-        public IEnumerable<InvoiceItemEntity> GetInvoiceItems()
-        {
-            return _invoiceRetrievalService.GetInvoiceItems();
-        }
-
-        public InvoiceItemEntity GetInvoiceItem(string item, Guid warehouse, Guid invoice)
-        {
-            return _invoiceRetrievalService.GetInvoiceItem(item, warehouse, invoice);
-        }
-
-
-        public Task<int> AddInvoiceItem(InvoiceItemEntity invoiceItem)
-        {
-            return _invoiceRetrievalService.AddInvoiceItem(invoiceItem);
-        }
-
-        public Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice)
-        {
-            return _invoiceRetrievalService.RemoveInvoiceItem(item, warehouse, invoice);
-        }
-
 
         public async Task<int> ReturnGoodsFromInvoice(Guid id)
         {
             await _guidValidator.ValidateAsync(id, false);
-            return await _invoiceRetrievalService.ReturnInvoice(id);
+            return await ReturnInvoice(id);
+        }
+
+        private async Task<InvoiceEntity> GetInvoiceAsync(Guid id)
+        {
+            await _guidValidator.ValidateAsync(id, false);
+            return await _invoiceRepository.GetInvoiceAsync(id);
+        }
+
+        private async Task AddInvoiceItemsAsync(ItemSellDto dto)
+        {
+            var items = new List<InvoiceItemEntity>();
+            if (dto.SKU is not null)
+            {
+               items.Add(new InvoiceItemEntity { Invoice = (Guid)dto.InvoiceId, Item = dto.SKU });
+            }
+            else
+            {
+                items = _mappingService.Map<List<InvoiceItemEntity>>(_reservationService.GetReservationItemsByReservation((Guid)dto.ReservationId));
+                await _reservationService.RemoveReservationAsync((Guid)dto.ReservationId);
+            }
+
+            foreach (var item in items)
+            {
+                item.Invoice = (Guid)dto.InvoiceId;
+                await new DistributionService(item, _warehouseRepository, _invoiceRepository, nameof(WarehouseInformation.AvailableItemQuantity)).Distribute();
+            }
+        }
+
+        private async Task<InvoiceEntity> AddInvoice(Guid id)
+        {
+            var invoice = new InvoiceEntity
+            {
+                Id = id
+            };
+            return await _invoiceRepository.AddInvoiceAsync(invoice);
+        }
+
+        /// <summary>
+        /// Return Goods From Invoice
+        /// Get Invoice Items
+        /// Get Warehouse To Return Items
+        /// Return Items To Warehouse
+        /// Remove Invoice Items
+        /// Remove Invoice
+        /// </summary>
+        /// <param name="id">Warehouse guid</param>
+        /// <returns></returns>
+        private async Task<int> ReturnInvoice(Guid id)
+        {
+            using (var transaction = _invoiceRepository.GetTransaction())
+            {
+                try
+                {
+                    var invoiceItems = _invoiceRepository.GetInvoiceItems(id).ToList();
+                    await ReturnItemsToWarehouses(invoiceItems);
+                    await RevertInvoice(id);
+                    await transaction.CommitAsync();
+                    return invoiceItems.Count;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
+        private async Task ReturnItemsToWarehouses(List<InvoiceItemEntity> invoiceItems)
+        {
+            foreach (var item in invoiceItems)
+            {
+                await new DistributionService(_mappingService.Map<WarehouseItemEntity>(item), _warehouseRepository,
+                    _warehouseRepository, nameof(WarehouseInformation.FreeQuantity)).Distribute();
+            }
+        }
+
+        private Task<int> RevertInvoice(Guid id)
+        {
+            return _invoiceRepository.RevertInvoice(id);
         }
     }
 }

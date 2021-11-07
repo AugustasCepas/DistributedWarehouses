@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Exceptions;
 using DistributedWarehouses.Domain.Repositories;
+using DistributedWarehouses.Dto;
 
 namespace DistributedWarehouses.DomainServices
 {
@@ -13,14 +12,15 @@ namespace DistributedWarehouses.DomainServices
     {
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IRepository _entityRepository;
-        private readonly DistributableItemEntity _distributableItem;
+        private DistributableItemEntity _distributableItem;
         private readonly string _sortBy;
         private List<(Guid, int)> _warehouseItems;
         private int _quantity;
         private Guid _warehouse;
         private int _availableQuantity;
 
-        public DistributionService(DistributableItemEntity distributableItem, IWarehouseRepository warehouseRepository, IRepository entityRepository, string sortBy)
+        public DistributionService(DistributableItemEntity distributableItem, IWarehouseRepository warehouseRepository,
+            IRepository entityRepository, string sortBy)
         {
             _sortBy = sortBy;
             _distributableItem = distributableItem;
@@ -42,24 +42,30 @@ namespace DistributedWarehouses.DomainServices
                 (_warehouse, _availableQuantity) = await GetWarehouseParams();
             }
 
-            if (_quantity>0)
+            if (_quantity > 0)
             {
                 throw new InsufficientStorageException(_quantity);
             }
+
             return _warehouseItems;
         }
 
         private async Task<(Guid, int)> GetWarehouseParams()
         {
             var warehouseItem = await _warehouseRepository.GetWarehouseByItem(_distributableItem.Item, _sortBy);
-            return (warehouseItem.Id, (int)typeof(WarehouseEntity).GetProperty(_sortBy).GetValue(warehouseItem));
+            return (warehouseItem.Id, (int)typeof(WarehouseInformation).GetProperty(_sortBy).GetValue(warehouseItem));
         }
 
         private async Task Add(int quantityToAdd)
         {
             _distributableItem.Quantity = quantityToAdd;
             _distributableItem.Warehouse = _warehouse;
-            await _entityRepository.Add<DistributableItemEntity>(_distributableItem);
+            await _entityRepository.Add(_distributableItem);
+            if (_distributableItem is InvoiceItemEntity)
+            {
+                await _warehouseRepository.UpdateWarehouseItemQuantity(_distributableItem.Item, _warehouse,
+                    quantityToAdd);
+            }
         }
     }
 }

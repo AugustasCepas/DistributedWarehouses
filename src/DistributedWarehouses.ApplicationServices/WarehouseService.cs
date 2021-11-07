@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
-using DistributedWarehouses.Domain.RetrievalServices;
+using DistributedWarehouses.Domain.Repositories;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 
@@ -10,63 +10,47 @@ namespace DistributedWarehouses.ApplicationServices
 {
     public class WarehouseService : IWarehouseService
     {
-        private readonly IWarehouseRetrievalService _warehouseRetrievalService;
+        private readonly IWarehouseRepository _warehouseRepository;
+        private readonly IInvoiceRepository _invoiceRepository;
+        private readonly IReservationRepository _reservationRepository;
 
-        public WarehouseService(IWarehouseRetrievalService warehouseRetrievalService)
+        public WarehouseService(IWarehouseRepository warehouseRepository, IInvoiceRepository invoiceRepository,
+            IReservationRepository reservationRepository)
         {
-            _warehouseRetrievalService = warehouseRetrievalService;
+            _warehouseRepository = warehouseRepository;
+            _invoiceRepository = invoiceRepository;
+            _warehouseRepository = warehouseRepository;
+            _reservationRepository = reservationRepository;
         }
 
         public IEnumerable<WarehouseEntity> GetWarehouses()
         {
-            var result = _warehouseRetrievalService.GetWarehouses();
+            var result = _warehouseRepository.GetWarehouses();
 
             return result;
         }
 
         public WarehouseDto GetWarehouseInfo(Guid id)
         {
-            var result = _warehouseRetrievalService.GetWarehouseInfo(id);
+            WarehouseEntity warehouse = _warehouseRepository.GetWarehouse(id);
+            WarehouseDto result = _warehouseRepository.GetWarehouseInfo(id);
 
+            result.Id = warehouse.Id;
+            result.Address = warehouse.Address;
+            result.Capacity = warehouse.Capacity;
+            result.FreeQuantity = warehouse.Capacity - result.StoredQuantity;
+            
             return result;
         }
 
-        public Task<int> AddWarehouse(WarehouseEntity warehouseEntity)
+        public Task<WarehouseItemEntity> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity)
         {
-            var result = _warehouseRetrievalService.AddWarehouse(warehouseEntity);
+            if (_warehouseRepository.GetWarehouseItem(warehouseItemEntity.Item, warehouseItemEntity.Warehouse) != null)
+            {
+                return Task.FromResult<WarehouseItemEntity>(null);
+            }
 
-            return result;
-        }
-
-        public Task<int> RemoveWarehouse(Guid id)
-        {
-            var result = _warehouseRetrievalService.RemoveWarehouse(id);
-
-            return result;
-        }
-
-        public WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse)
-        {
-            return _warehouseRetrievalService.GetWarehouseItem(item, warehouse);
-        }
-
-
-        public Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity)
-        {
-            var result = _warehouseRetrievalService.AddWarehouseItem(warehouseItemEntity);
-
-            return result;
-        }
-
-        public Task<int> RemoveWarehouseItem(string item, Guid warehouse)
-        {
-            return _warehouseRetrievalService.RemoveWarehouseItem(item, warehouse);
-        }
-
-        public Task<int> SellWarehouseItem(ItemSellDto dto)
-        {
-            var result = _warehouseRetrievalService.SellWarehouseItem(dto);
-            return result;
+            return _warehouseRepository.AddWarehouseItem(warehouseItemEntity);
         }
     }
 }

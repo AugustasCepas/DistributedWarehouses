@@ -6,14 +6,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
-using ReservationEntity = DistributedWarehouses.Domain.Entities.ReservationEntity;
-using ReservationModel = DistributedWarehouses.Infrastructure.Models.Reservation;
-using ReservationItemEntity = DistributedWarehouses.Domain.Entities.ReservationItemEntity;
-using ReservationItemModel = DistributedWarehouses.Infrastructure.Models.ReservationItem;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
 {
@@ -59,7 +54,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         public async Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem)
         {
             await _distributedWarehousesContext.ReservationItems
-                .Upsert(_mapper.Map<ReservationItemModel>(reservationItem))
+                .Upsert(_mapper.Map<ReservationItem>(reservationItem))
                 .On(ri => new { ri.Reservation, ri.Item, ri.Warehouse }).WhenMatched(ri => new ReservationItem
                 {
                     Quantity = reservationItem.Quantity
@@ -70,7 +65,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         public async Task RemoveReservationAsync(Guid id)
         {
             _distributedWarehousesContext.Reservations.Remove(
-                _distributedWarehousesContext.Find<ReservationModel>(id));
+                _distributedWarehousesContext.Find<Reservation>(id));
             await _distributedWarehousesContext.SaveChangesAsync();
         }
 
@@ -100,23 +95,23 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 .FirstOrDefaultAsync(i => i.Item == item && i.Warehouse == warehouse && i.Reservation == reservation);
         }
 
-        public Task<ReservationItemEntity> GetReservationItemAsync(Guid reservation)
+        public IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation)
         {
-            return _mapper.ProjectTo<ReservationItemEntity>(_distributedWarehousesContext.ReservationItems)
-                .FirstOrDefaultAsync(i => i.Reservation == reservation);
+            return _mapper.ProjectTo<ReservationItemEntity>(_distributedWarehousesContext
+                .ReservationItems).Where(ri => ri.Reservation.Equals(reservation)).AsEnumerable();
         }
 
         public int RemoveReservationItem(string item, Guid warehouse, Guid reservation)
         {
             _distributedWarehousesContext.ReservationItems.Remove(
-                _distributedWarehousesContext.Find<ReservationItemModel>(item, warehouse, reservation));
+                _distributedWarehousesContext.Find<ReservationItem>(item, warehouse, reservation));
             return _distributedWarehousesContext.SaveChanges();
         }
 
         public int RemoveReservationItem(ReservationItemEntity reservationItemEntity)
         {
             _distributedWarehousesContext.ReservationItems.Remove(
-                _mapper.Map<ReservationItemModel>(reservationItemEntity));
+                _mapper.Map<ReservationItem>(reservationItemEntity));
             return _distributedWarehousesContext.SaveChanges();
         }
 

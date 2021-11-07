@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using InvoiceEntity = DistributedWarehouses.Domain.Entities.InvoiceEntity;
 using InvoiceItemEntity = DistributedWarehouses.Domain.Entities.InvoiceItemEntity;
-using AutoMapper.QueryableExtensions;
 using DistributedWarehouses.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -67,7 +66,6 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                         Invoice = invoiceGuid
                     });
 
-
             return _mapper.ProjectTo<InvoiceItemEntity>(query).AsEnumerable();
         }
 
@@ -86,7 +84,14 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
             return _mapper.ProjectTo<WarehouseItemEntity>(query).AsEnumerable();
         }
+        public async Task<InvoiceEntity> AddInvoiceAsync(InvoiceEntity invoice)
+        {
+            var invoiceToAdd = _mapper.Map<Invoice>(invoice);
 
+            await _distributedWarehousesContext.Invoices.Upsert(invoiceToAdd).On(i => i.Id)
+                .WhenMatched(r => new Invoice { }).RunAsync(CancellationToken.None);
+            return invoice;
+        }
         public Task<int> AddInvoice(InvoiceEntity invoice)
         {
             _distributedWarehousesContext.Invoices.Add(new Invoice
@@ -126,16 +131,16 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 }).FirstOrDefault();
         }
 
-        public Task<int> AddInvoiceItem(InvoiceItemEntity invoiceItem)
+        public async Task<InvoiceItemEntity> AddInvoiceItemAsync(InvoiceItemEntity invoiceItem)
         {
-            _distributedWarehousesContext.InvoiceItems.Add(new InvoiceItem
-            {
-                Item = invoiceItem.Item,
-                Quantity = invoiceItem.Quantity,
-                Warehouse = invoiceItem.Warehouse,
-                Invoice = invoiceItem.Invoice
-            });
-            return _distributedWarehousesContext.SaveChangesAsync();
+            await _distributedWarehousesContext.InvoiceItems
+                .Upsert(_mapper.Map<InvoiceItem>(invoiceItem))
+                .On(ii => new { ii.Warehouse, ii.Invoice, ii.Item }).WhenMatched(ii => new InvoiceItem
+                {
+                    Quantity = ii.Quantity + invoiceItem.Quantity
+                }).RunAsync(CancellationToken.None);
+
+            return invoiceItem;
         }
 
         public async Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice)
@@ -169,7 +174,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         public async Task Add<T>(T entity) where T : DistributableItemEntity
         {
-            await AddInvoiceItem(entity as InvoiceItemEntity);
+            await AddInvoiceItemAsync(entity as InvoiceItemEntity);
         }
     }
 }

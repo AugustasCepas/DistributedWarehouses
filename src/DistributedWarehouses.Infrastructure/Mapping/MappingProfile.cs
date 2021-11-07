@@ -1,9 +1,5 @@
 ﻿using AutoMapper;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
@@ -14,7 +10,7 @@ namespace DistributedWarehouses.Infrastructure.Mapping
     {
         public MappingProfile()
         {
-            CreateMap<Invoice, InvoiceEntity>();
+            CreateMap<Invoice, InvoiceEntity>().ReverseMap();
             CreateMap<InvoiceItem, InvoiceItemEntity>();
             CreateMap<InvoiceItemEntity, InvoiceItem>();
             CreateMap<Item, ItemEntity>()
@@ -22,12 +18,14 @@ namespace DistributedWarehouses.Infrastructure.Mapping
             CreateMap<Reservation, ReservationEntity>();
             CreateMap<ReservationEntity, Reservation>();
             CreateMap<ReservationItem, ReservationItemEntity>();
+            CreateMap<InvoiceItemEntity, ReservationItemEntity>().ReverseMap();
             CreateMap<ReservationItemEntity, ReservationItem>();
             CreateMap<Warehouse, WarehouseEntity>();
             CreateMap<WarehouseItem, WarehouseItemEntity>();
             CreateMap<WarehouseItemEntity, WarehouseItem>();
-            CreateMap<WarehouseEntity, WarehouseEntity>();
+            CreateMap<WarehouseInformation, WarehouseEntity>();
             CreateMap<InvoiceItemEntity, WarehouseItem>();
+            CreateMap<InvoiceItemEntity, WarehouseItemEntity>();
             CreateMap<Invoice, InvoiceDto>();
             CreateMap<InvoiceEntity, InvoiceDto>();
             CreateMap<InvoiceItem, ItemInInvoiceInfoDto>()
@@ -39,8 +37,8 @@ namespace DistributedWarehouses.Infrastructure.Mapping
             CreateMap<ItemSellDto, InvoiceItemEntity>()
                 .ForMember(destination => destination.Item, opts => opts.MapFrom(source => source.SKU))
                 .ForMember(destination => destination.Warehouse, opts => opts.MapFrom(source => source.WarehouseId));
-            CreateMap<ReservationEntity, ReservationIdDto>()
-                .ForMember(destination => destination.ReservationId, opts => opts.MapFrom(source => source.Id));
+            CreateMap<ReservationEntity, IdDto>()
+                .ForMember(destination => destination.Id, opts => opts.MapFrom(source => source.Id));
 
             CreateMap<InvoiceItemEntity, ItemInInvoiceInfoDto>()
                 .ForMember(destination => destination.WarehouseId, opts => opts.MapFrom(source => source.Warehouse))

@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Domain.Resources;
 using FluentValidation;
 
 namespace DistributedWarehouses.ApplicationServices.Validators
@@ -15,7 +9,6 @@ namespace DistributedWarehouses.ApplicationServices.Validators
     /// </summary>
     public class GuidValidator : AbstractValidator<Guid>
     {
-
         public GuidValidator()
         {
             InputRule();
@@ -23,9 +16,7 @@ namespace DistributedWarehouses.ApplicationServices.Validators
 
         private void InputRule()
         {
-            RuleFor(id => id).Cascade(CascadeMode.Stop).NotEmpty().NotNull();
+            RuleFor(id => id).Cascade(CascadeMode.Stop).NotEmpty().WithErrorCode("400").NotNull().WithErrorCode("400").WithName("Id");
         }
-
-
     }
 }

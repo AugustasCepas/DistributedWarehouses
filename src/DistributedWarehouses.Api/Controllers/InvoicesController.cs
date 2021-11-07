@@ -35,7 +35,7 @@ namespace DistributedWarehouses.Api.Controllers
 
         // Return info about one Invoice
         // GET: <InvoicesController>/$invoiceGuid
-        [HttpGet("{id:guid}")]
+        [HttpGet("{id:guid}", Name = "GetInvoiceById")]
         [ProducesResponseType(typeof(InvoiceDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnInfoAboutOneInvoice(Guid id)
         {
@@ -44,10 +44,21 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(item);
         }
 
+        // POST <ItemsController>/items
+        // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
+        [HttpPost("sell-item")]
+        [ProducesResponseType(typeof(IdDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
+        {
+            var result = await _invoiceService.SellItems(dto);
+            var link = Url.Link("GetInvoiceById", new { id = result.Id });
+            return Created(link, result);
+        }
+
         // Return all goods within invoice
         // POST: invoices/{id}
-        [HttpDelete("{id:guid}")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
+        [HttpPost("return/{id:guid}")]
+        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnGoodsFromInvoice(Guid id)
         {
             var response = await _invoiceService.ReturnGoodsFromInvoice(id);

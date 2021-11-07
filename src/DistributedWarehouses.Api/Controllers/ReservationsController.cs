@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -45,11 +43,11 @@ namespace DistributedWarehouses.Api.Controllers
 
         // POST api/<ReservationsController>
         [HttpPost]
-        [ProducesResponseType(typeof(ReservationIdDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(IdDto), StatusCodes.Status201Created)]
         public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
             var result = await _reservationService.AddReservationAsync(reservationInputDto);
-            var link = Url.Link("GetValueById", new { id = result.ReservationId });
+            var link = Url.Link("GetValueById", new { id = result.Id });
             return Created(link, result);
         }
     }

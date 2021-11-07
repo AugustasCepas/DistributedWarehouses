@@ -1,5 +1,4 @@
-﻿using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Domain.Resources;
+﻿using DistributedWarehouses.Domain.Resources;
 using FluentValidation;
 
 namespace DistributedWarehouses.ApplicationServices.Validators
