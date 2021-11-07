@@ -5,12 +5,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DistributedWarehouses.Domain\DistributedWarehouses.Domain.csproj" />
-    <ProjectReference Include="..\DistributedWarehouses.Infrastructure\DistributedWarehouses.Infrastructure.csproj" />
+    <Compile Remove="Validators\**" />
+    <EmbeddedResource Remove="Validators\**" />
+    <None Remove="Validators\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Validators\" />
+    <ProjectReference Include="..\DistributedWarehouses.Domain\DistributedWarehouses.Domain.csproj" />
+    <ProjectReference Include="..\DistributedWarehouses.Infrastructure\DistributedWarehouses.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

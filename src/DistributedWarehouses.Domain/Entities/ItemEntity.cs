@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace DistributedWarehouses.Domain.Entities
+﻿namespace DistributedWarehouses.Domain.Entities
 {
     public class ItemEntity
     {

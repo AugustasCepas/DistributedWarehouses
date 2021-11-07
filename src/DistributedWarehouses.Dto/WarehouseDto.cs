@@ -10,6 +10,7 @@ namespace DistributedWarehouses.Dto
         public int StoredQuantity { get; set; }
         public int ReservedQuantity { get; set; }
         public int FreeQuantity { get; set; }
-
     }
+
+
 }

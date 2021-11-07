@@ -14,6 +14,7 @@ namespace DistributedWarehouses.Infrastructure.Models
 
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool Reverted { get; set; }
 
         public virtual ICollection<InvoiceItem> InvoiceItems { get; set; }
     }

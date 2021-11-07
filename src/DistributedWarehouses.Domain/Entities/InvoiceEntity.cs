@@ -6,11 +6,13 @@ namespace DistributedWarehouses.Domain.Entities
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool Reverted { get; set; }
 
         public InvoiceEntity()
         {
             Id = Guid.NewGuid();
             CreatedAt = DateTime.Now;
+            Reverted = false;
         }
     }
 }
