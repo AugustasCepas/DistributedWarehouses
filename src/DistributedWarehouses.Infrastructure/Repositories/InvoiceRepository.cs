@@ -91,7 +91,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
 
         public async Task<bool> ExistsAsync<T>(T id)
         {
-            return await _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
+            return await _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id) && !i.Reverted);
         }
 
         public async Task<int> RevertInvoice(Guid invoiceId)
