@@ -8,9 +8,7 @@ namespace DistributedWarehouses.Domain.Repositories
     public interface IItemRepository : IRepository
     {
         IEnumerable<ItemEntity> GetItems();
-        IEnumerable<Tuple<Guid, int, int>> GetItemInWarehousesInfo(string SKU);
+        IEnumerable<Tuple<Guid, int, int>> GetItemInWarehousesInfo(string sku);
         Task<ItemEntity> GetItemAsync(string sku);
-        Task<int> AddItemAsync(ItemEntity item);
-        Task<int> RemoveItemAsync(string SKU);
     }
 }

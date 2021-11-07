@@ -39,8 +39,8 @@ namespace DistributedWarehouses.ApplicationServices
         public async Task<WarehouseDto> GetWarehouseInfo(Guid id)
         {
             await _warehouseGuidValidator.ValidateAsync(id, false);
-            var result = _mappingService.Map<WarehouseDto>(_warehouseRepository.GetWarehouse(id));
-            var warehouseInfo = _warehouseRepository.GetWarehouseInfo(id);
+            var result =  _mappingService.Map<WarehouseDto>(await _warehouseRepository.GetWarehouse(id));
+            var warehouseInfo = await _warehouseRepository.GetWarehouseInfo(id);
             result.FreeQuantity -= warehouseInfo.StoredQuantity;
             result.StoredQuantity = warehouseInfo.StoredQuantity;
             result.ReservedQuantity = warehouseInfo.ReservedQuantity;
@@ -66,14 +66,14 @@ namespace DistributedWarehouses.ApplicationServices
                 Quantity = quantity
             };
 
-            if (_warehouseRepository.GetWarehouseItem(sku, warehouse) == null)
+            if (await _warehouseRepository.GetWarehouseItem(sku, warehouse) == null)
             {
                 return await Task.FromResult<WarehouseItemEntity>(null);
             }
 
             await _warehouseRepository.AddWarehouseItem(warehouseItemEntity);
 
-             return _warehouseRepository.GetWarehouseItem(sku, warehouse);
+             return await _warehouseRepository.GetWarehouseItem(sku, warehouse);
         }
     }
 }

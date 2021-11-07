@@ -37,7 +37,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public WarehouseDto GetWarehouseInfo(Guid id)
+        public async Task<WarehouseDto> GetWarehouseInfo(Guid id)
         {
             var warehouseItems = _distributedWarehousesContext.WarehouseItems;
             var reservationItems = _distributedWarehousesContext.ReservationItems;
@@ -61,23 +61,23 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 {
                     StoredQuantity = g.Sum(wi => wi.StoredQuantity),
                     ReservedQuantity = g.Sum(wi => wi.ReservedQuantity)
-                }).FirstOrDefault();
+                }).FirstOrDefaultAsync();
 
-            return query;
+            return await query;
         }
 
-        public WarehouseEntity GetWarehouse(Guid id)
+        public Task<WarehouseEntity> GetWarehouse(Guid id)
         {
             return _mapper
                 .ProjectTo<WarehouseEntity>(_distributedWarehousesContext.Warehouses)
-                .FirstOrDefault(i => i.Id == id);
+                .FirstOrDefaultAsync(i => i.Id == id);
         }
 
-        public WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse)
+        public Task<WarehouseItemEntity> GetWarehouseItem(string item, Guid warehouse)
         {
             return _mapper
                 .ProjectTo<WarehouseItemEntity>(_distributedWarehousesContext.WarehouseItems)
-                .FirstOrDefault(i => i.Item == item && i.Warehouse == warehouse);
+                .FirstOrDefaultAsync(i => i.Item == item && i.Warehouse == warehouse);
         }
 
         public async Task<WarehouseItemEntity> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity)
