@@ -9,11 +9,7 @@ namespace DistributedWarehouses.Domain.Services
     public interface IWarehouseService
     {
         IEnumerable<WarehouseEntity> GetWarehouses();
-        WarehouseDto GetWarehouseInfo(Guid id);
-
-
-        // Warehouse Item
-        Task<WarehouseItemEntity> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
-
+        Task<WarehouseDto> GetWarehouseInfo(Guid id);
+        Task<WarehouseItemEntity> AddWarehouseItem(Guid warehouse, string sku, int quantity);
     }
 }

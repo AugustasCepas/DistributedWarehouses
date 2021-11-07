@@ -6,6 +6,7 @@ using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -30,9 +31,9 @@ namespace DistributedWarehouses.Api.Controllers
         // GET <WarehousesController>/{id}
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoOfOneWarehouse(Guid id)
+        public async Task<IActionResult> ReturnInfoOfOneWarehouse(Guid id)
         {
-            var result = _warehouseService.GetWarehouseInfo(id);
+            var result = await _warehouseService.GetWarehouseInfo(id);
             return Ok(result);
         }
 
@@ -48,11 +49,12 @@ namespace DistributedWarehouses.Api.Controllers
         }
 
         // POST <WarehouseItemsController>
-        [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> AddWarehouseItem([FromBody] WarehouseItemEntity warehouseItemEntity)
+        [HttpPost("{warehouseId}/")]
+        [ProducesResponseType(typeof(WarehouseItemEntity), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddWarehouseItem(Guid warehouseId, [BindRequired] string sku, [BindRequired] int quantity)
         {
-            var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
+            var result = await _warehouseService.AddWarehouseItem(warehouseId, sku, quantity);
+
             return Ok(result);
         }
     }

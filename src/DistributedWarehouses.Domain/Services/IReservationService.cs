@@ -8,16 +8,10 @@ namespace DistributedWarehouses.Domain.Services
 {
     public interface IReservationService
     {
-        IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
         Task<IdDto> AddReservationAsync(ReservationInputDto reservationInputDto);
         Task RemoveReservationAsync(Guid id);
-
-
-        // Reservation Item
-        IEnumerable<ReservationItemEntity> GetReservationItems();
-        IEnumerable<ReservationItemEntity> GetReservationItemsByReservation(Guid reservationId);
-        Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity invoiceItem);
-        Task RemoveReservationItemAsync(string item, Guid warehouse, Guid reservation);
+        Task<IEnumerable<ReservationItemEntity>> GetReservationItemsByReservation(Guid reservationId);
+        Task<ReservationRemovedDto> RemoveReservationItemAsync(string item, Guid reservation);
     }
 }

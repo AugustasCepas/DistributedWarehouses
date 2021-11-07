@@ -23,7 +23,9 @@ namespace DistributedWarehouses.ApplicationServices.Validators
             var validationResult = await _validator.ValidateAsync(param);
             if (!validationResult.IsValid)
             {
-                throw new BaseException(validationResult.Errors.First().ErrorMessage, int.Parse(validationResult.Errors.First().ErrorCode));
+                int errorCode;
+                int.TryParse(validationResult.Errors.First().ErrorCode, out errorCode);
+                throw new BaseException(validationResult.Errors.First().ErrorMessage, errorCode);
             }
             await ValidateExistenceAsync(param, isNew);
         }

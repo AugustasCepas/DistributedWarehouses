@@ -22,12 +22,12 @@ namespace DistributedWarehouses.Api.Controllers
         }
 
         // Remove Reservation of SKU
-        // DELETE api/<ReservationController>/{item}/{warehouse}/{reservation}
-        [HttpDelete("{reservationId:guid}/items/{itemSku:regex(^[[a-zA-Z0-9]]*$)}/warehouses/{warehouseId:guid}/")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public IActionResult RemoveSKUReservation(string itemSku, Guid warehouseId, Guid reservationId)
+        // DELETE api/reservations
+        [HttpDelete("{id}/items/{sku}")]
+        [ProducesResponseType(typeof(ReservationRemovedDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RemoveSKUReservation(string sku, Guid id)
         {
-            var result = _reservationService.RemoveReservationItemAsync(itemSku, warehouseId, reservationId);
+            var result =  await _reservationService.RemoveReservationItemAsync(sku, id);
             return Ok(result);
         }
 

@@ -57,7 +57,7 @@ namespace DistributedWarehouses.Api.Controllers
 
         // Return all goods within invoice
         // POST: invoices/{id}
-        [HttpPost("return/{id:guid}")]
+        [HttpPost("{id:guid}/return")]
         [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnGoodsFromInvoice(Guid id)
         {

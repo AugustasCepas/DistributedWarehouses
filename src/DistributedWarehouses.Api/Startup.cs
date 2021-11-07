@@ -20,7 +20,6 @@ namespace DistributedWarehouses.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers()
-                //.AddJsonOptions(o => { o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve; });
                 .AddNewtonsoftJson();
             services.AddInjections(Configuration);
             services.AddDatabases(Configuration);

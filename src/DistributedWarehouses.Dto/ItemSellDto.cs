@@ -6,7 +6,6 @@ namespace DistributedWarehouses.Dto
     {
         public string? SKU { get; set; }
         public int? Quantity { get; set; } 
-        public Guid? WarehouseId { get; set; }
         public Guid? ReservationId { get; set; }
         public Guid? InvoiceId { get; set; }
     }

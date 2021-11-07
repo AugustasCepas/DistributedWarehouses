@@ -28,34 +28,16 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return _distributedWarehousesContext.Database.BeginTransaction();
         }
 
-        public IEnumerable<ReservationEntity> GetReservations()
-        {
-            return _distributedWarehousesContext.Reservations.Select(i => new ReservationEntity
-            {
-                Id = i.Id,
-                CreatedAt = i.CreatedAt,
-                ExpirationTime = i.ExpirationTime
-            }).AsEnumerable();
-        }
-
         public ReservationEntity GetReservation(Guid id)
         {
-            return _distributedWarehousesContext.Reservations
-                .Where(i => i.Id == id)
-                .Select(i => new ReservationEntity
-                {
-                    Id = i.Id,
-                    CreatedAt = i.CreatedAt,
-                    ExpirationTime = i.ExpirationTime
-                }).FirstOrDefault();
+            return _mapper.ProjectTo<ReservationEntity>(_distributedWarehousesContext.Reservations).FirstOrDefault(i => i.Id == id);
         }
 
-        // public int AddReservationItem(ReservationInputDto reservationInputDto, Guid reservationId,ItemInWarehousesInfoDto itemInWarehouse)
         public async Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem)
         {
             await _distributedWarehousesContext.ReservationItems
                 .Upsert(_mapper.Map<ReservationItem>(reservationItem))
-                .On(ri => new { ri.Reservation, ri.Item, ri.Warehouse }).WhenMatched(ri => new ReservationItem
+                .On(ri => new {ri.Reservation, ri.Item, ri.Warehouse}).WhenMatched(ri => new ReservationItem
                 {
                     Quantity = reservationItem.Quantity
                 }).RunAsync(CancellationToken.None);
@@ -73,26 +55,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         {
             var reservationToAdd = _mapper.Map<Reservation>(reservation);
             await _distributedWarehousesContext.Reservations.Upsert(reservationToAdd).On(r => r.Id)
-                .WhenMatched(r => new Reservation{CreatedAt = reservationToAdd.CreatedAt, ExpirationTime = reservationToAdd.ExpirationTime}).RunAsync(CancellationToken.None);
+                .WhenMatched(r => new Reservation
+                    {CreatedAt = reservationToAdd.CreatedAt, ExpirationTime = reservationToAdd.ExpirationTime})
+                .RunAsync(CancellationToken.None);
             return reservation;
-        }
-
-        public IEnumerable<ReservationItemEntity> GetReservationItems()
-        {
-            return _distributedWarehousesContext.ReservationItems.Select(i => new ReservationItemEntity
-            {
-                Quantity = i.Quantity,
-                Item = i.Item,
-                Warehouse = i.Warehouse,
-                Reservation = i.Reservation
-            }).AsEnumerable();
-        }
-
-        public Task<ReservationItemEntity> GetReservationItemAsync(string item, Guid warehouse, Guid reservation)
-        {
-            return _mapper
-                .ProjectTo<ReservationItemEntity>(_distributedWarehousesContext.ReservationItems)
-                .FirstOrDefaultAsync(i => i.Item == item && i.Warehouse == warehouse && i.Reservation == reservation);
         }
 
         public IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation)
@@ -101,18 +67,19 @@ namespace DistributedWarehouses.Infrastructure.Repositories
                 .ReservationItems).Where(ri => ri.Reservation.Equals(reservation)).AsEnumerable();
         }
 
-        public int RemoveReservationItem(string item, Guid warehouse, Guid reservation)
+        public IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation, string sku)
         {
-            _distributedWarehousesContext.ReservationItems.Remove(
-                _distributedWarehousesContext.Find<ReservationItem>(item, warehouse, reservation));
-            return _distributedWarehousesContext.SaveChanges();
+            return _mapper.ProjectTo<ReservationItemEntity>(_distributedWarehousesContext.ReservationItems)
+                .Where(ri => ri.Reservation.Equals(reservation) && ri.Item.Equals(sku)).AsEnumerable();
         }
 
-        public int RemoveReservationItem(ReservationItemEntity reservationItemEntity)
+        public async Task<int> RemoveReservationItem(IEnumerable<ReservationItemEntity> reservationItems)
         {
-            _distributedWarehousesContext.ReservationItems.Remove(
-                _mapper.Map<ReservationItem>(reservationItemEntity));
-            return _distributedWarehousesContext.SaveChanges();
+            var reservationItemsRemoved = reservationItems.Sum(ri => ri.Quantity);
+                _distributedWarehousesContext.ReservationItems.RemoveRange(_mapper.Map<IEnumerable<ReservationItem>>(reservationItems));
+            await _distributedWarehousesContext.SaveChangesAsync();
+
+            return reservationItemsRemoved;
         }
 
         public Task<bool> ExistsAsync<T>(T id)

@@ -14,18 +14,26 @@ namespace DistributedWarehouses.ApplicationServices
     public class InvoiceService : IInvoiceService
     {
         private readonly IMappingService _mappingService;
-        private readonly IValidator<Guid, IInvoiceRepository> _guidValidator;
+        private readonly IValidator<Guid, IInvoiceRepository> _invoiceGuidValidator;
+        private readonly IValidator<string, IItemRepository> _skuValidator;
+        private readonly IValidator<Guid, IReservationRepository> _reservationGuidValidator;
         private readonly IValidator<ItemSellDto, IInvoiceRepository> _itemSellValidator;
         private readonly IInvoiceRepository _invoiceRepository;
         private readonly IWarehouseRepository _warehouseRepository;
         private readonly IReservationService _reservationService;
 
         public InvoiceService(IMappingService mappingService,
-            IValidator<Guid, IInvoiceRepository> guidValidator, IInvoiceRepository invoiceRepository,
-            IWarehouseRepository warehouseRepository, IReservationService reservationService, IValidator<ItemSellDto, IInvoiceRepository> itemSellValidator)
+            IValidator<Guid, IInvoiceRepository> invoiceGuidValidator,
+            IValidator<string, IItemRepository> skuValidator,
+            IValidator<Guid, IReservationRepository> reservationGuidValidator,
+            IInvoiceRepository invoiceRepository,
+            IWarehouseRepository warehouseRepository, IReservationService reservationService,
+            IValidator<ItemSellDto, IInvoiceRepository> itemSellValidator)
         {
             _mappingService = mappingService;
-            _guidValidator = guidValidator;
+            _invoiceGuidValidator = invoiceGuidValidator;
+            _skuValidator = skuValidator;
+            _reservationGuidValidator = reservationGuidValidator;
             _invoiceRepository = invoiceRepository;
             _warehouseRepository = warehouseRepository;
             _reservationService = reservationService;
@@ -39,6 +47,7 @@ namespace DistributedWarehouses.ApplicationServices
 
         public async Task<InvoiceDto> GetInvoiceItemsAsync(Guid id)
         {
+            await _invoiceGuidValidator.ValidateAsync(id, false);
             var invoice = _mappingService.Map<InvoiceDto>(await GetInvoiceAsync(id));
             var invoiceItems = _invoiceRepository.GetInvoiceItems(id);
             invoice.Items = _mappingService.Map<IEnumerable<ItemInInvoiceInfoDto>>(invoiceItems);
@@ -49,12 +58,26 @@ namespace DistributedWarehouses.ApplicationServices
         public async Task<IdDto> SellItems(ItemSellDto dto)
         {
             await _itemSellValidator.ValidateAsync(dto, true);
+            if (dto.SKU is not null)
+            {
+                await _skuValidator.ValidateAsync(dto.SKU, false);
+            }
+            if (dto.InvoiceId is not null)
+            {
+                await _invoiceGuidValidator.ValidateAsync((Guid)dto.InvoiceId, false);
+            }
+
+            if (dto.ReservationId is not null)
+            {
+                await _reservationGuidValidator.ValidateAsync((Guid) dto.ReservationId, false);
+            }
+
             using (var transaction = _invoiceRepository.GetTransaction())
             {
                 try
                 {
                     dto.InvoiceId = dto.InvoiceId ??= Guid.NewGuid();
-                    await AddInvoice((Guid)dto.InvoiceId);
+                    await AddInvoice((Guid) dto.InvoiceId);
                     await AddInvoiceItemsAsync(dto);
                     await transaction.CommitAsync();
                 }
@@ -65,18 +88,18 @@ namespace DistributedWarehouses.ApplicationServices
                 }
             }
 
-            return new IdDto((Guid)dto.InvoiceId);
+            return new IdDto((Guid) dto.InvoiceId);
         }
 
         public async Task<int> ReturnGoodsFromInvoice(Guid id)
         {
-            await _guidValidator.ValidateAsync(id, false);
+            await _invoiceGuidValidator.ValidateAsync(id, false);
             return await ReturnInvoice(id);
         }
 
         private async Task<InvoiceEntity> GetInvoiceAsync(Guid id)
         {
-            await _guidValidator.ValidateAsync(id, false);
+            await _invoiceGuidValidator.ValidateAsync(id, false);
             return await _invoiceRepository.GetInvoiceAsync(id);
         }
 
@@ -85,18 +108,21 @@ namespace DistributedWarehouses.ApplicationServices
             var items = new List<InvoiceItemEntity>();
             if (dto.SKU is not null)
             {
-               items.Add(new InvoiceItemEntity { Invoice = (Guid)dto.InvoiceId, Item = dto.SKU });
+                items.Add(new InvoiceItemEntity
+                    {Invoice = (Guid) dto.InvoiceId, Item = dto.SKU, Quantity = (int) dto.Quantity});
             }
             else
             {
-                items = _mappingService.Map<List<InvoiceItemEntity>>(_reservationService.GetReservationItemsByReservation((Guid)dto.ReservationId));
-                await _reservationService.RemoveReservationAsync((Guid)dto.ReservationId);
+                items = _mappingService.Map<List<InvoiceItemEntity>>(
+                    _reservationService.GetReservationItemsByReservation((Guid) dto.ReservationId));
+                await _reservationService.RemoveReservationAsync((Guid) dto.ReservationId);
             }
 
             foreach (var item in items)
             {
-                item.Invoice = (Guid)dto.InvoiceId;
-                await new DistributionService(item, _warehouseRepository, _invoiceRepository, nameof(WarehouseInformation.AvailableItemQuantity)).Distribute();
+                item.Invoice = (Guid) dto.InvoiceId;
+                await new DistributionService(item, _warehouseRepository, _invoiceRepository,
+                    nameof(WarehouseInformation.AvailableItemQuantity)).Distribute();
             }
         }
 

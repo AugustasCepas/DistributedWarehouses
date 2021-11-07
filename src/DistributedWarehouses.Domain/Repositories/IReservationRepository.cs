@@ -9,7 +9,6 @@ namespace DistributedWarehouses.Domain.Repositories
     public interface IReservationRepository : IRepository
     {
         IDbContextTransaction GetTransaction();
-        IEnumerable<ReservationEntity> GetReservations();
         ReservationEntity GetReservation(Guid id);
         Task<ReservationEntity> AddReservationAsync(ReservationEntity reservation);
         
@@ -18,10 +17,8 @@ namespace DistributedWarehouses.Domain.Repositories
         Task RemoveReservationAsync(Guid id);
 
         // Reservation Item
-        IEnumerable<ReservationItemEntity> GetReservationItems();
-        Task<ReservationItemEntity> GetReservationItemAsync(string item, Guid warehouse, Guid reservation);
         IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation);
-        int RemoveReservationItem(string item, Guid warehouse, Guid reservation);
-        int RemoveReservationItem(ReservationItemEntity reservationItemEntity);
+        IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation, string sku);
+        Task<int> RemoveReservationItem(IEnumerable<ReservationItemEntity> reservationItems);
     }
 }
