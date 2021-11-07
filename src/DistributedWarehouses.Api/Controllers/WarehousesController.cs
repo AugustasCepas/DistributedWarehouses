@@ -6,6 +6,7 @@ using DistributedWarehouses.Domain.Entities;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -23,21 +24,24 @@ namespace DistributedWarehouses.Api.Controllers
             _warehouseService = warehouseService;
         }
 
-        //Return info about one warehouse
-        //How many goods are stored
-        //How many goods are reserved
-        //TODO: How much free space available
-        // GET <WarehousesController>/{id}
+        /// How many goods are stored
+        /// How many goods are reserved
+        /// How much free space available
+        /// <summary>
+        /// 7) Return info about one warehouse
+        /// </summary>
         [HttpGet("{id:guid}")]
         [ProducesResponseType(typeof(WarehouseDto), StatusCodes.Status200OK)]
-        public IActionResult ReturnInfoOfOneWarehouse(Guid id)
+        public async Task<IActionResult> ReturnInfoOfOneWarehouse(Guid id)
         {
-            var result = _warehouseService.GetWarehouseInfo(id);
+            var result = await _warehouseService.GetWarehouseInfo(id);
             return Ok(result);
         }
 
-        // Return list of all Warehouses
-        // GET: <WarehousesController>/warehouses
+        /// <summary>
+        /// 6) Return list of all Warehouses
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<WarehouseEntity>), StatusCodes.Status200OK)]
         public IActionResult ReturnListOfAllWarehouses()
@@ -47,22 +51,18 @@ namespace DistributedWarehouses.Api.Controllers
             return Ok(response);
         }
 
-        // POST <WarehouseItemsController>
-        [HttpPost]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> AddWarehouseItem([FromBody] WarehouseItemEntity warehouseItemEntity)
+        // POST warehouses/
+        /// <summary>
+        /// 8) Add goods to warehouse
+        /// </summary>
+        /// <param name="warehouseItemEntity"></param>
+        /// <returns></returns>
+        [HttpPost("{warehouseId}/")]
+        [ProducesResponseType(typeof(WarehouseItemEntity), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddWarehouseItem(Guid warehouseId, [BindRequired] string sku, [BindRequired] int quantity)
         {
-            var result = await _warehouseService.AddWarehouseItem(warehouseItemEntity);
-            return Ok(result);
-        }
+            var result = await _warehouseService.AddWarehouseItem(warehouseId, sku, quantity);
 
-        // POST <ItemsController>/items
-        // [HttpPost("{sku:required}/{quantity:required}/{warehouse:required}/{reservation}")]
-        [HttpPost("sell-item")]
-        [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
-        {
-            var result = await _warehouseService.SellWarehouseItem(dto);
             return Ok(result);
         }
     }

@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DistributedWarehouses.Domain.Resources;
-
-namespace DistributedWarehouses.Domain.Exceptions
+﻿namespace DistributedWarehouses.Domain.Exceptions
 {
     public class InsufficientStorageException : ConflictException
     {
-        public InsufficientStorageException(string message) : base(message)
-        { 
+        public InsufficientStorageException(int missingSpace) : base($"There is not enough space throughout all available warehouses. Reduce requested amount or add storage. Missing space: {missingSpace}")
+        {
         }
     }
 }

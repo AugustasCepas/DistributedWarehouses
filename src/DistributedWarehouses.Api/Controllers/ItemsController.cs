@@ -1,18 +1,11 @@
-﻿using System;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using DistributedWarehouses.Domain.Entities;
-using DistributedWarehouses.Domain.Resources;
 using DistributedWarehouses.Domain.Services;
 using DistributedWarehouses.Dto;
-using DistributedWarehouses.Infrastructure.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace DistributedWarehouses.Api.Controllers
 {
@@ -21,35 +14,31 @@ namespace DistributedWarehouses.Api.Controllers
     public class ItemsController : ControllerBase
     {
         private readonly IItemService _itemService;
-        private readonly IValidator<string> _validator;
 
         public ItemsController(IItemService itemService, IValidator<string> validator)
         {
             _itemService = itemService;
-            _validator = validator;
         }
 
-        // Return list of all SKUs
-        // GET: <ItemsController>
+        /// <summary>
+        /// 1) Return list of all SKUs
+        /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<ItemEntity>), StatusCodes.Status200OK)]
         public IActionResult ReturnListOfAllSKUs()
         {
             var response = _itemService.GetItems();
-
             return Ok(response);
         }
 
-        // Return info about one SKU
-        // How many items left in each warehouseEntity
-        // How many items are reserved
-        // TODO: How many items are planned to be delivered soon
-        // GET: <ItemsController>/$SKU
+        /// <summary>
+        /// 2) Return info about one SKU
+        /// </summary>
         [HttpGet("{sku}")]
         [ProducesResponseType(typeof(ItemDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> ReturnInfoAboutOneSKU (string sku)
+        public async Task<IActionResult> ReturnInfoAboutOneSKU(string sku)
         {
-            var item = await _itemService.GetItemInWarehousesInfo(sku);
+            var item = await _itemService.GetItemInWarehousesInfoAsync(sku);
             return Ok(item);
         }
     }

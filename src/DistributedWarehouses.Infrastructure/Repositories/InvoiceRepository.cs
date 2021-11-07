@@ -1,44 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using AutoMapper;
 using DistributedWarehouses.Domain.Repositories;
-using DistributedWarehouses.Dto;
 using DistributedWarehouses.Infrastructure.Models;
 using InvoiceEntity = DistributedWarehouses.Domain.Entities.InvoiceEntity;
-using InvoiceModel = DistributedWarehouses.Infrastructure.Models.Invoice;
 using InvoiceItemEntity = DistributedWarehouses.Domain.Entities.InvoiceItemEntity;
-using InvoiceItemModel = DistributedWarehouses.Infrastructure.Models.InvoiceItem;
+using DistributedWarehouses.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DistributedWarehouses.Infrastructure.Repositories
 {
     public class InvoiceRepository : IInvoiceRepository
     {
         private readonly DistributedWarehousesContext _distributedWarehousesContext;
+        private readonly IMapper _mapper;
 
-        public InvoiceRepository(DistributedWarehousesContext distributedWarehousesContext)
+        public InvoiceRepository(DistributedWarehousesContext distributedWarehousesContext, IMapper mapper)
         {
             _distributedWarehousesContext = distributedWarehousesContext;
+            _mapper = mapper;
+        }
+
+        public IDbContextTransaction GetTransaction()
+        {
+            return _distributedWarehousesContext.Database.BeginTransaction();
         }
 
         public IEnumerable<InvoiceEntity> GetInvoices()
         {
-            return _distributedWarehousesContext.Invoices.Select(i => new InvoiceEntity
-            {
-                Id = i.Id,
-                CreatedAt = i.CreatedAt
-            }).AsEnumerable();
+            return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices).AsEnumerable();
         }
 
-        public InvoiceEntity GetInvoice(Guid invoiceGuid)
+        public Task<InvoiceEntity> GetInvoiceAsync(Guid invoiceGuid)
         {
-            return _distributedWarehousesContext.Invoices
-                .Where(i => i.Id == invoiceGuid)
-                .Select(i => new InvoiceEntity
-                {
-                    Id = i.Id,
-                    CreatedAt = i.CreatedAt
-                }).FirstOrDefault();
+            return _mapper.ProjectTo<InvoiceEntity>(_distributedWarehousesContext.Invoices)
+                .FirstOrDefaultAsync(i => i.Id == invoiceGuid);
         }
 
         /// <summary>
@@ -46,7 +46,7 @@ namespace DistributedWarehouses.Infrastructure.Repositories
         /// </summary>
         /// <param name="invoiceGuid"></param>
         /// <returns></returns>
-        public IEnumerable<ItemInInvoiceInfoDto> GetInvoiceItems(Guid invoiceGuid)
+        public IEnumerable<InvoiceItemEntity> GetInvoiceItems(Guid invoiceGuid)
         {
             var invoices = _distributedWarehousesContext.Invoices;
             var invoiceItems = _distributedWarehousesContext.InvoiceItems;
@@ -54,74 +54,59 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             var query = invoices
                 .GroupJoin(invoiceItems, invoice => invoice.Id, invoiceItem => invoiceItem.Invoice,
                     (invoice, invoiceItemGroup) => new {invoice, invoiceItemGroup})
-                .SelectMany(@t => @t.invoiceItemGroup.DefaultIfEmpty(), (@t, invoiceItem) => new {@t, invoiceItem})
-                .Where(@t => @t.invoiceItem.Invoice == invoiceGuid)
-                .Select(@t => new ItemInInvoiceInfoDto
+                .SelectMany(t => t.invoiceItemGroup.DefaultIfEmpty(), (t, invoiceItem) => new {t, invoiceItem})
+                .Where(t => t.invoiceItem.Invoice == invoiceGuid)
+                .Select(t =>
+                    // new Tuple<string, int, Guid, Guid>(t.invoiceItem.Item, t.invoiceItem.Quantity, t.invoiceItem.Warehouse, invoiceGuid));
+                    new InvoiceItem
+                    {
+                        Item = t.invoiceItem.Item,
+                        Quantity = t.invoiceItem.Quantity,
+                        Warehouse = t.invoiceItem.Warehouse,
+                        Invoice = invoiceGuid
+                    });
+
+            return _mapper.ProjectTo<InvoiceItemEntity>(query).AsEnumerable();
+        }
+        public async Task<InvoiceEntity> AddInvoiceAsync(InvoiceEntity invoice)
+        {
+            var invoiceToAdd = _mapper.Map<Invoice>(invoice);
+
+            await _distributedWarehousesContext.Invoices.Upsert(invoiceToAdd).On(i => i.Id)
+                .WhenMatched(r => new Invoice { }).RunAsync(CancellationToken.None);
+            return invoice;
+        }
+
+        public async Task<InvoiceItemEntity> AddInvoiceItemAsync(InvoiceItemEntity invoiceItem)
+        {
+            await _distributedWarehousesContext.InvoiceItems
+                .Upsert(_mapper.Map<InvoiceItem>(invoiceItem))
+                .On(ii => new { ii.Warehouse, ii.Invoice, ii.Item }).WhenMatched(ii => new InvoiceItem
                 {
-                    ItemId = @t.invoiceItem.Item,
-                    PurchasedQuantity = @t.invoiceItem.Quantity,
-                    WarehouseId = @t.invoiceItem.Warehouse
-                });
+                    Quantity = ii.Quantity + invoiceItem.Quantity
+                }).RunAsync(CancellationToken.None);
 
-            return query.AsEnumerable();
+            return invoiceItem;
         }
 
-        public Task<int> AddInvoice(InvoiceEntity invoice)
+        public async Task<bool> ExistsAsync<T>(T id)
         {
-            _distributedWarehousesContext.Invoices.Add(new InvoiceModel
-            {
-                Id = invoice.Id,
-                CreatedAt = invoice.CreatedAt
-            });
-            return _distributedWarehousesContext.SaveChangesAsync();
+            return await _distributedWarehousesContext.Invoices.AnyAsync(i => i.Id.Equals(id));
         }
 
-        public async Task<int> RemoveInvoice(Guid id)
+        public async Task<int> RevertInvoice(Guid invoiceId)
         {
-            _distributedWarehousesContext.Invoices.Remove(
-                await _distributedWarehousesContext.FindAsync<InvoiceModel>(id));
+            var invoiceToRevert = await _distributedWarehousesContext.Invoices.Where(i => i.Id == invoiceId)
+                .FirstOrDefaultAsync();
+            invoiceToRevert.Reverted = true;
+            _distributedWarehousesContext.Invoices.Update(invoiceToRevert);
+
             return await _distributedWarehousesContext.SaveChangesAsync();
         }
 
-        public IEnumerable<InvoiceItemEntity> GetInvoiceItems()
+        public async Task Add<T>(T entity) where T : DistributableItemEntity
         {
-            return _distributedWarehousesContext.InvoiceItems.Select(i => new InvoiceItemEntity
-            {
-                Item = i.Item,
-                Quantity = i.Quantity,
-                Warehouse = i.Warehouse,
-                Invoice = i.Invoice
-            }).AsEnumerable();
-        }
-
-        public InvoiceItemEntity GetInvoiceItem(string item, Guid warehouse, Guid invoice)
-        {
-            return _distributedWarehousesContext.InvoiceItems
-                .Where(i => i.Item == item && i.Warehouse == warehouse && i.Invoice == invoice)
-                .Select(i => new InvoiceItemEntity
-                {
-                    Item = i.Item,
-                    Quantity = i.Quantity
-                }).FirstOrDefault();
-        }
-
-        public Task<int> AddInvoiceItem(InvoiceItemEntity invoiceItem)
-        {
-            _distributedWarehousesContext.InvoiceItems.Add(new InvoiceItemModel
-            {
-                Item = invoiceItem.Item,
-                Quantity = invoiceItem.Quantity,
-                Warehouse = invoiceItem.Warehouse,
-                Invoice = invoiceItem.Invoice
-            });
-            return _distributedWarehousesContext.SaveChangesAsync();
-        }
-
-        public async Task<int> RemoveInvoiceItem(string item, Guid warehouse, Guid invoice)
-        {
-            _distributedWarehousesContext.InvoiceItems.Remove(
-                await _distributedWarehousesContext.FindAsync<InvoiceItemModel>(item, warehouse, invoice));
-            return await _distributedWarehousesContext.SaveChangesAsync();
+            await AddInvoiceItemAsync(entity as InvoiceItemEntity);
         }
     }
 }

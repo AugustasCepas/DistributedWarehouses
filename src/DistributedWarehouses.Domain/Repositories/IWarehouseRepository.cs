@@ -6,20 +6,17 @@ using DistributedWarehouses.Dto;
 
 namespace DistributedWarehouses.Domain.Repositories
 {
-    public interface IWarehouseRepository
+    public interface IWarehouseRepository : IRepository
     {
         public IEnumerable<WarehouseEntity> GetWarehouses();
         public WarehouseDto GetWarehouseInfo(Guid id);
         public WarehouseEntity GetWarehouse(Guid id);
-        public Task<int> AddWarehouse(WarehouseEntity warehouseEntity);
-        public Task<int> RemoveWarehouse(Guid id);
+        public Task<WarehouseInformation> GetWarehouseByItem(string sku, string property);
 
 
         // Warehouse Items
-        public IEnumerable<WarehouseItemEntity> GetWarehouseItems();
         WarehouseItemEntity GetWarehouseItem(string item, Guid warehouse);
-        public Task<int> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
-        Task<int> RemoveWarehouseItem(string item, Guid warehouse);
+        Task<WarehouseItemEntity> AddWarehouseItem(WarehouseItemEntity warehouseItemEntity);
         Task<int> UpdateWarehouseItemQuantity(string item, Guid warehouse, int quantity);
     }
 }
