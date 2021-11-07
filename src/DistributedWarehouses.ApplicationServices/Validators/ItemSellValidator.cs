@@ -11,6 +11,7 @@ namespace DistributedWarehouses.ApplicationServices.Validators
         {
             CascadeMode = CascadeMode.Stop;
             RuleFor(i => i.SKU).NotNull().When(i => i.ReservationId is null);
+            RuleFor(i => i.ReservationId).Null().When(i => i.SKU is not null);
             RuleFor(i => i.Quantity).NotNull().When(i => i.SKU is not null);
             RuleFor(i => i.ReservationId).NotNull().NotEmpty().When(i => i.SKU is null);
             RuleFor(i => i.InvoiceId).NotEmpty().When(i => i.InvoiceId is not null);

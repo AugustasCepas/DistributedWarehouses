@@ -91,10 +91,10 @@ namespace DistributedWarehouses.ApplicationServices
             return new IdDto((Guid) dto.InvoiceId);
         }
 
-        public async Task<int> ReturnGoodsFromInvoice(Guid id)
+        public async Task<AffectedItemsDto> ReturnGoodsFromInvoice(Guid id)
         {
             await _invoiceGuidValidator.ValidateAsync(id, false);
-            return await ReturnInvoice(id);
+            return new AffectedItemsDto(await ReturnInvoice(id));
         }
 
         private async Task<InvoiceEntity> GetInvoiceAsync(Guid id)

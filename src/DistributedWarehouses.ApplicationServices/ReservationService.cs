@@ -69,13 +69,13 @@ namespace DistributedWarehouses.ApplicationServices
             return _reservationRepository.GetReservationItems(reservationId);
         }
 
-        public async Task<ReservationRemovedDto> RemoveReservationItemAsync(string item, Guid reservation)
+        public async Task<AffectedItemsDto> RemoveReservationItemAsync(string item, Guid reservation)
         {
             await _skuValidator.ValidateAsync(item, false);
             await _reservationGuidValidator.ValidateAsync(reservation, false);
             var reservationItems = _reservationRepository.GetReservationItems(reservation, item);
             var result =
-                new ReservationRemovedDto(await _reservationRepository.RemoveReservationItem(reservationItems));
+                new AffectedItemsDto(await _reservationRepository.RemoveReservationItem(reservationItems));
 
             if (!_reservationRepository.GetReservationItems(reservation).Any())
                 await _reservationRepository.RemoveReservationAsync(reservation);

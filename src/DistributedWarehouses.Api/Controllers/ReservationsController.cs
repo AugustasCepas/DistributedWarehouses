@@ -26,11 +26,11 @@ namespace DistributedWarehouses.Api.Controllers
         /// <summary>
         /// 4) Remove Reservation of SKU
         /// </summary>
-        [HttpDelete("{id}/items/{sku}")]
-        [ProducesResponseType(typeof(ReservationRemovedDto), StatusCodes.Status200OK)]
-        public async Task<IActionResult> RemoveSKUReservation(string sku, Guid id)
+        [HttpDelete("{reservationId}/items/{sku}")]
+        [ProducesResponseType(typeof(AffectedItemsDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> RemoveSKUReservation(string sku, Guid reservationId)
         {
-            var result =  await _reservationService.RemoveReservationItemAsync(sku, id);
+            var result =  await _reservationService.RemoveReservationItemAsync(sku, reservationId);
             return Ok(result);
         }
 
@@ -39,7 +39,6 @@ namespace DistributedWarehouses.Api.Controllers
         /// </summary>
         [HttpPost]
         [ProducesResponseType(typeof(IdDto), StatusCodes.Status201Created)]
-        [SwaggerRequestExample(typeof(ReservationInputDto), typeof(ReservationInputDtoExample))]
         public async Task<IActionResult> AddItemReservation([FromBody] ReservationInputDto reservationInputDto)
         {
             var result = await _reservationService.AddReservationAsync(reservationInputDto);

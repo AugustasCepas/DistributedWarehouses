@@ -55,7 +55,6 @@ namespace DistributedWarehouses.Api.Controllers
         /// <returns></returns>
         [HttpPost("sell-item")]
         [ProducesResponseType(typeof(IdDto), StatusCodes.Status200OK)]
-        [SwaggerRequestExample(typeof(ItemSellDto), typeof(ItemSellDtoExample))]
         public async Task<IActionResult> SellWarehouseItem(ItemSellDto dto)
         {
             var result = await _invoiceService.SellItems(dto);
@@ -69,7 +68,7 @@ namespace DistributedWarehouses.Api.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("{id:guid}/return")]
-        [ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(AffectedItemsDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> ReturnGoodsFromInvoice(Guid id)
         {
             var response = await _invoiceService.ReturnGoodsFromInvoice(id);
