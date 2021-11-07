@@ -12,6 +12,6 @@ namespace DistributedWarehouses.Domain.Services
         Task<IdDto> AddReservationAsync(ReservationInputDto reservationInputDto);
         Task RemoveReservationAsync(Guid id);
         Task<IEnumerable<ReservationItemEntity>> GetReservationItemsByReservation(Guid reservationId);
-        Task<ReservationRemovedDto> RemoveReservationItemAsync(string item, Guid reservation);
+        Task<AffectedItemsDto> RemoveReservationItemAsync(string item, Guid reservation);
     }
 }

@@ -11,6 +11,6 @@ namespace DistributedWarehouses.Domain.Services
         IEnumerable<InvoiceEntity> GetInvoices();
         Task<InvoiceDto> GetInvoiceItemsAsync(Guid id);
         public Task<IdDto> SellItems(ItemSellDto dto);
-        Task<int> ReturnGoodsFromInvoice(Guid id);
+        Task<AffectedItemsDto> ReturnGoodsFromInvoice(Guid id);
     }
 }
