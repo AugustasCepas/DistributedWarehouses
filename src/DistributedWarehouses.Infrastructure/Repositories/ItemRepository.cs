@@ -55,22 +55,10 @@ namespace DistributedWarehouses.Infrastructure.Repositories
             return query.AsEnumerable();
         }
 
-        public Task<ItemEntity> GetItemAsync(string SKU)
+        public Task<ItemEntity> GetItemAsync(string sku)
         {
             return _mapper.ProjectTo<ItemEntity>(_distributedWarehousesContext.Items)
-                .FirstOrDefaultAsync(i => i.SKU == SKU);
-        }
-
-        public Task<int> AddItemAsync(ItemEntity item)
-        {
-            _distributedWarehousesContext.Items.Add(_mapper.Map<ItemModel>(item));
-            return _distributedWarehousesContext.SaveChangesAsync();
-        }
-
-        public async Task<int> RemoveItemAsync(string sku)
-        {
-            _distributedWarehousesContext.Items.Remove(await _distributedWarehousesContext.FindAsync<ItemModel>(sku));
-            return await _distributedWarehousesContext.SaveChangesAsync();
+                .FirstOrDefaultAsync(i => i.SKU == sku);
         }
 
         public Task<bool> ExistsAsync<T>(T sku)

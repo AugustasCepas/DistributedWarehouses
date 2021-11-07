@@ -11,12 +11,8 @@ namespace DistributedWarehouses.Domain.Repositories
         IDbContextTransaction GetTransaction();
         ReservationEntity GetReservation(Guid id);
         Task<ReservationEntity> AddReservationAsync(ReservationEntity reservation);
-        
         Task<ReservationItemEntity> AddReservationItemAsync(ReservationItemEntity reservationItem);
-
         Task RemoveReservationAsync(Guid id);
-
-        // Reservation Item
         IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation);
         IEnumerable<ReservationItemEntity> GetReservationItems(Guid reservation, string sku);
         Task<int> RemoveReservationItem(IEnumerable<ReservationItemEntity> reservationItems);
