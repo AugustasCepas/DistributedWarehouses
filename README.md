@@ -1,5 +1,5 @@
 # DistributedWarehouses
-You need to create an Asp.net core web app that provides API of distributed warehouses.
+Solution provides API of distributed warehouses.
 
 Main functions:
 1) Return list of all SKUs
