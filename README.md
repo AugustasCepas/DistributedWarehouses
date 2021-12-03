@@ -25,10 +25,4 @@ Main functions:
 8) Add goods to the warehouse
 9) Return list of all invoices
 10) Return info about one invoice 
-11) TODO: Return all goods within an invoice
-                goods can be returned to different warehouses
-				
-
-DB information:
-Server=tcp:distributed-warehouses.database.windows.net,1433;Database=DistributedWarehouses;
-User ID=cepas;Password=Augustas!
+11) Return all goods within an invoice goods can be returned to different warehouses
